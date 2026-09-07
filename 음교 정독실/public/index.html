@@ -1,0 +1,1918 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>음악교육과 스마트 시스템</title>
+    <link rel="stylesheet" href="https://fastly.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        :root {
+            --piano-black: #0a0a0a; --piano-black-soft: #141414; --piano-white: #ffffff; --piano-gray: #f4f4f5;
+            --text-dark: #171717; --text-muted: #737373; --border-light: #e5e5e5; --border-dark: #262626; --accent-silver: #a3a3a3;
+            --accent-blue: #4f46e5;
+        }
+        body { font-family: 'Pretendard', sans-serif; background-color: var(--piano-gray); color: var(--text-dark); margin: 0; padding: 0; display: flex; justify-content: center; -webkit-tap-highlight-color: transparent; }
+        .app-container { width: 100%; max-width: 480px; min-height: 100vh; background-color: var(--piano-white); box-shadow: 0 0 40px rgba(0,0,0,0.05); position: relative; overflow-x: hidden; }
+        
+        header { background: var(--piano-black); color: var(--piano-white); padding: 30px 16px 0; text-align: center; }
+        .badge { display: inline-block; padding: 4px 12px; border: 1px solid var(--accent-silver); border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: 1px; margin-bottom: 12px; color: var(--accent-silver); }
+        h1 { margin: 0 0 10px; font-size: 22px; font-weight: 900; letter-spacing: -1px; }
+        
+        .tabs { display: flex; border-top: 1px solid var(--border-dark); background: var(--piano-black); }
+        .tab { flex: 1; padding: 14px 0; text-align: center; font-size: 14px; font-weight: 700; color: var(--text-muted); cursor: pointer; border: none; background: none; transition: 0.2s; }
+        .tab.active { color: var(--piano-white); background: var(--piano-black-soft); border-bottom: 3px solid var(--piano-white); }
+
+        .content-wrap { padding: 20px 14px 50px; }
+        .section-title { font-size: 15px; font-weight: 800; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--piano-black); padding-bottom: 8px; }
+        
+        .input-group { margin-bottom: 14px; }
+        .input-label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; }
+        input, select, textarea { width: 100%; padding: 12px; background: var(--piano-gray); border: 1px solid var(--border-light); border-radius: 8px; font-size: 14px; box-sizing: border-box; outline: none; transition: 0.2s; font-family: inherit; }
+        input:focus, textarea:focus { border-color: var(--piano-black); background: var(--piano-white); box-shadow: 0 0 0 3px rgba(0,0,0,0.05); }
+
+        .btn-black { width: 100%; padding: 14px; background: var(--piano-black); color: var(--piano-white); border: none; border-radius: 8px; font-size: 14px; font-weight: 800; cursor: pointer; transition: 0.2s; }
+        .btn-black:active { transform: scale(0.98); }
+        .btn-white { width: 100%; padding: 14px; background: var(--piano-white); color: var(--piano-black); border: 1px solid var(--piano-black); border-radius: 8px; font-size: 14px; font-weight: 800; cursor: pointer; transition: 0.2s; }
+        .btn-admin-action { width: 100%; padding: 11px; background: #0f172a; color: #ffffff; border: 1px solid #334155; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
+        .btn-danger { width: 100%; padding: 11px; background: #fee2e2; color: #b91c1c; border: 1px solid #f87171; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; transition: 0.2s; margin-bottom: 12px; }
+        .text-btn { background: none; border: none; color: var(--text-muted); font-size: 13px; font-weight: 600; text-decoration: underline; cursor: pointer; margin-top: 16px; width: 100%; }
+
+        .my-seat-card { background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 12px; padding: 12px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .my-seat-title { font-size: 13px; font-weight: 800; color: #1e40af; }
+        .btn-sm-cancel { background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; }
+
+        .weekly-report-card { background: var(--piano-gray); border: 1px solid var(--border-light); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .weekly-title { font-size: 12px; font-weight: 700; color: var(--text-muted); }
+        .weekly-time { font-size: 14px; font-weight: 900; color: var(--piano-black); }
+
+        .my-status { background: var(--piano-black-soft); color: var(--piano-white); border-radius: 12px; padding: 18px; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .my-status-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .timer { font-size: 26px; font-weight: 900; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+        .control-btns { display: flex; gap: 8px; margin-top: 14px; }
+
+        .map-wrapper { position: relative; padding-left: 24px; margin-bottom: 16px; width: 100%; box-sizing: border-box; }
+        .door-marker { position: absolute; left: 0; bottom: 4px; width: 18px; height: 42px; border: 2px solid var(--piano-black); border-left: none; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: var(--piano-black); writing-mode: vertical-rl; letter-spacing: 1px; }
+        .real-seat-grid { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 4px; width: 100%; }
+        
+        .s-slot { 
+            aspect-ratio: 1 / 1.1; min-width: 0; border: 1px solid var(--border-light); border-radius: 6px; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            cursor: pointer; background: var(--piano-white); box-sizing: border-box; padding: 2px 0; overflow: hidden;
+        }
+        .s-gap { grid-column: span 1; min-width: 0; }
+        .s-empty { grid-column: span 4; min-width: 0; }
+        .s-slot.type-assign { border-color: #a3a3a3; background: #f4f4f5; }
+        .s-slot.type-assign.can-apply { border: 1.5px dashed #4f46e5; background: #eef2ff; }
+        .s-slot.occupied { background: var(--piano-black); color: var(--piano-white); border-color: var(--piano-black); }
+        .s-slot.occupied .seat-info { color: var(--piano-white); }
+        .s-slot.mine { border: 2px solid #2563eb; background: #1e3a8a; color: var(--piano-white); box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25); }
+        .s-slot.mine .seat-info { color: #dbeafe; }
+        
+        .seat-num { font-size: 11px; font-weight: 900; margin-bottom: 2px; line-height: 1; }
+        .seat-info { font-size: 9px; color: var(--text-muted); text-align: center; font-weight: 600; line-height: 1.1; word-break: keep-all; letter-spacing: -0.5px; }
+
+        .room-selector { display: flex; gap: 6px; margin-bottom: 14px; }
+        .room-btn { flex: 1; padding: 10px 0; border: 1px solid var(--border-light); background: var(--piano-white); border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; color: var(--text-muted); transition: 0.2s; }
+        .room-btn.active { background: var(--piano-black); color: var(--piano-white); border-color: var(--piano-black); }
+
+        .timetable-container { width: 100%; border: 1px solid var(--border-light); border-radius: 12px; overflow-x: auto; background: #ffffff; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .timetable-header { display: grid; grid-template-columns: 36px repeat(7, 1fr); background: var(--piano-gray); border-bottom: 1px solid var(--border-light); text-align: center; font-size: 11.5px; font-weight: 800; color: var(--piano-black); padding: 9px 0; min-width: 480px; }
+        
+        .timetable-scroll-area { max-height: 480px; overflow-y: auto; overflow-x: hidden; position: relative; }
+        .timetable-body { display: grid; grid-template-columns: 36px repeat(7, 1fr); position: relative; min-width: 480px; }
+        
+        .time-col { display: flex; flex-direction: column; background: #fafafa; border-right: 1px solid var(--border-light); }
+        .time-cell { height: 42px; display: flex; align-items: flex-start; justify-content: center; padding-top: 4px; font-size: 10px; font-weight: 700; color: #a3a3a3; border-bottom: 1px solid #f0f0f0; box-sizing: border-box; }
+        
+        .day-col { position: relative; border-right: 1px solid #f0f0f0; background: #fff; }
+        .day-col:last-child { border-right: none; }
+        .grid-slot { height: 42px; border-bottom: 1px solid #f5f5f5; box-sizing: border-box; cursor: pointer; }
+        .grid-slot:hover { background: #f8fafc; }
+
+        .booking-block {
+            position: absolute; left: 2px; right: 2px; border-radius: 6px; padding: 4px 5px; box-sizing: border-box;
+            font-size: 10px; font-weight: 800; color: #ffffff; overflow: hidden; display: flex; flex-direction: column;
+            justify-content: flex-start; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.12); z-index: 10;
+            line-height: 1.2; word-break: break-all; transition: opacity 0.2s;
+        }
+        .booking-block:active { transform: scale(0.98); }
+        .block-mine { border: 2px solid var(--piano-black); font-weight: 900; }
+        
+        .block-fixed {
+            background: #0f172a !important;
+            border: 1px solid #334155 !important;
+            color: #f8fafc !important;
+            box-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+        .badge-fixed {
+            display: inline-block; background: #3b82f6; color: #fff; font-size: 8px; font-weight: 800;
+            padding: 1px 4px; border-radius: 3px; margin-bottom: 2px; width: fit-content;
+        }
+
+        .block-past {
+            background: #94a3b8 !important;
+            color: #ffffff !important;
+            opacity: 0.72;
+            border: 1px dashed #64748b;
+        }
+
+        .rules-box { background: var(--piano-white); border: 1px solid var(--border-light); border-radius: 12px; padding: 16px; margin-top: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .rules-header { font-size: 13.5px; font-weight: 800; color: var(--piano-black); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+        .rules-list { margin: 0; padding-left: 18px; font-size: 12px; color: #404040; line-height: 1.65; }
+        .rules-list li { margin-bottom: 4px; }
+        .rules-list b { color: var(--piano-black); font-weight: 700; }
+
+        .feedback-box { background: #fbfbfa; border: 1px dashed var(--border-light); border-radius: 12px; padding: 16px; margin-top: 16px; }
+        .feedback-header { font-size: 13px; font-weight: 800; color: var(--piano-black); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+        .feedback-sub { font-size: 11px; color: var(--text-muted); margin-bottom: 10px; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 999; opacity: 0; transition: opacity 0.2s; }
+        .modal-content { background: var(--piano-white); width: 90%; max-width: 360px; border-radius: 16px; padding: 22px; box-sizing: border-box; transform: translateY(20px); transition: transform 0.2s; max-height: 90vh; overflow-y: auto; }
+        .modal-title { font-size: 17px; font-weight: 800; margin-bottom: 8px; }
+        .modal-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.45; }
+        
+        .agree-container { 
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 16px; 
+            display: flex; align-items: flex-start; gap: 10px; cursor: pointer; user-select: none;
+        }
+        .agree-container input[type="checkbox"] { 
+            width: 18px; height: 18px; margin: 2px 0 0 0; cursor: pointer; flex-shrink: 0; accent-color: var(--piano-black);
+        }
+        .agree-text { font-size: 12px; font-weight: 700; color: #1e293b; line-height: 1.4; cursor: pointer; }
+        .modal-actions { display: flex; gap: 8px; }
+
+        .ai-fab {
+            position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%;
+            background: #0f172a; color: #ffffff; border: 2px solid #38bdf8; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.35);
+            display: flex; align-items: center; justify-content: center; font-size: 26px; cursor: pointer; z-index: 900;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .ai-fab:active { transform: scale(0.92); }
+
+        .ai-panel {
+            position: fixed; bottom: 90px; right: 20px; width: calc(100% - 40px); max-width: 380px; height: 520px;
+            background: #ffffff; border-radius: 20px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); border: 1px solid var(--border-light);
+            display: none; flex-direction: column; z-index: 950; overflow: hidden; animation: slideUp 0.25s ease forwards;
+        }
+        .ai-header { background: #0f172a; color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
+        .ai-header-title { font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+        .ai-header-btn { background: none; border: none; color: #94a3b8; font-size: 16px; cursor: pointer; padding: 0 4px; }
+        
+        .ai-body { flex: 1; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #fafafa; }
+        .ai-msg { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: 12.5px; line-height: 1.45; word-break: break-word; }
+        .ai-msg.bot { background: #ffffff; color: #1e293b; align-self: flex-start; border: 1px solid #e2e8f0; border-top-left-radius: 2px; }
+        .ai-msg.user { background: #0f172a; color: #ffffff; align-self: flex-end; border-top-right-radius: 2px; }
+
+        .ai-chips { display: flex; gap: 6px; padding: 6px 14px; background: #fff; overflow-x: auto; white-space: nowrap; border-top: 1px solid #f1f5f9; }
+        .ai-chip { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 14px; padding: 4px 10px; font-size: 11px; font-weight: 700; color: #475569; cursor: pointer; flex-shrink: 0; }
+        .ai-chip:hover { background: #e2e8f0; color: #0f172a; }
+
+        .ai-footer { padding: 10px 12px; background: #ffffff; border-top: 1px solid var(--border-light); display: flex; gap: 6px; }
+        .ai-input { flex: 1; padding: 10px 12px; font-size: 13px; border: 1px solid var(--border-light); border-radius: 8px; outline: none; background: #f8fafc; }
+        .ai-send-btn { background: #0f172a; color: #fff; border: none; border-radius: 8px; padding: 0 14px; font-size: 13px; font-weight: 800; cursor: pointer; }
+
+        .toast-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px; pointer-events: none; }
+        .toast { background: var(--piano-black); color: var(--piano-white); padding: 14px 18px; border-radius: 12px; font-size: 13px; font-weight: 600; box-shadow: 0 10px 20px rgba(0,0,0,0.2); animation: slideUp 0.3s ease forwards; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .loader-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); display:none; justify-content:center; align-items:center; z-index: 10000; }
+        .spinner { width: 36px; height: 36px; border: 3px solid var(--border-light); border-top-color: var(--piano-black); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .admin-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border-light); }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <div class="badge">GNU MUSIC EDUCATION</div>
+        <h1>스마트 예약 통합 포털</h1>
+        <div class="tabs" id="mainTabs" style="display:none;">
+            <button class="tab active" id="tabStudy" onclick="switchTab('study')">📚 정독실</button>
+            <button class="tab" id="tabLecture" onclick="switchTab('lecture')">🎹 강의실 시간표</button>
+        </div>
+    </header>
+
+    <div class="content-wrap" id="authView">
+        <div id="loginSection">
+            <div class="section-title">학우 인증</div>
+            <div class="input-group"><label class="input-label">학번 (10자리)</label><input type="text" id="loginId" maxlength="10"></div>
+            <div class="input-group"><label class="input-label">비밀번호</label><input type="password" id="loginPw"></div>
+            <button class="btn-black" onclick="handleLogin()">입장하기</button>
+            <button class="text-btn" onclick="toggleAuth(true)">신규 등록이 필요하신가요?</button>
+        </div>
+        <div id="registerSection" style="display:none;">
+            <div class="section-title">신규 학우 등록</div>
+            <div class="input-group"><label class="input-label">실명</label><input type="text" id="regName"></div>
+            <div class="input-group"><label class="input-label">학번 (10자리)</label><input type="text" id="regId" maxlength="10"></div>
+            <div class="input-group"><label class="input-label">학년</label><select id="regGrade"><option>1학년</option><option>2학년</option><option>3학년</option><option>4학년</option></select></div>
+            <div class="input-group"><label class="input-label">비밀번호</label><input type="password" id="regPw"></div>
+            <button class="btn-black" onclick="handleRegister()">등록 완료</button>
+            <button class="text-btn" onclick="toggleAuth(false)">뒤로 가기</button>
+        </div>
+    </div>
+
+    <div class="content-wrap" id="mainView" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div style="font-size:14px; font-weight:800;" id="userGreeting">👤 로딩중</div>
+            <button style="background:none; border:none; font-size:12px; font-weight:700; color:var(--text-muted); cursor:pointer;" onclick="handleLogout()">로그아웃</button>
+        </div>
+
+        <div class="my-seat-card" id="myAssignedSeatCard" style="display:none;">
+            <div class="my-seat-title" id="myAssignedSeatText">🏷️ 내 고정석: -번 좌석</div>
+            <button class="btn-sm-cancel" onclick="cancelMyAssignedSeat()">지정석 반환(취소)</button>
+        </div>
+
+        <div class="weekly-report-card" style="flex-direction:column; align-items:flex-start; gap:10px;">
+            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                <div class="weekly-title">📅 내 이용 기록 조회</div>
+                <input type="date" id="myHistoryDate" onchange="fetchMyHistory()" style="padding:6px; font-size:12px; border-radius:6px; border:1px solid var(--border-light); background:var(--piano-white); font-family:inherit;">
+            </div>
+            <div id="myHistoryResult" style="font-size:13px; font-weight:700; color:var(--piano-black); width:100%;">날짜를 선택하면 이용 기록이 나타납니다.</div>
+        </div>
+
+        <div class="my-status" id="myStatusBox" style="display:none;">
+            <div class="my-status-header">
+                <div style="font-size:12px; font-weight:700; color:var(--accent-silver);" id="mySeatNumLabel">좌석명</div>
+                <div style="font-size:10px; background:var(--piano-white); color:var(--piano-black); padding:2px 8px; border-radius:12px; font-weight:800;" id="mySeatTypeLabel">구분</div>
+            </div>
+            <div class="timer" id="mySeatTimer">00:00:00</div>
+            <div class="control-btns">
+                <button class="btn-white" style="padding:10px;" id="extendBtn" onclick="extendMySeat()">연장하기</button>
+                <button class="btn-black" style="padding:10px; border:1px solid var(--border-dark);" onclick="checkoutMySeat()">반납 및 퇴실</button>
+            </div>
+        </div>
+
+        <div id="studyView">
+            <div class="section-title">정독실 실시간 배치도</div>
+            <div class="map-wrapper">
+                <div class="door-marker">입구</div>
+                <div class="real-seat-grid">
+                    <div class="s-slot" id="slot-1"></div><div class="s-slot" id="slot-2"></div><div class="s-slot" id="slot-3"></div><div class="s-slot" id="slot-4"></div>
+                    <div class="s-gap"></div>
+                    <div class="s-slot" id="slot-5"></div><div class="s-slot" id="slot-6"></div><div class="s-slot" id="slot-7"></div><div class="s-slot" id="slot-8"></div>
+                    
+                    <div class="s-slot" id="slot-9"></div><div class="s-slot" id="slot-10"></div><div class="s-slot" id="slot-11"></div><div class="s-slot" id="slot-12"></div>
+                    <div class="s-gap"></div>
+                    <div class="s-slot" id="slot-13"></div><div class="s-slot" id="slot-14"></div><div class="s-slot" id="slot-15"></div><div class="s-slot" id="slot-16"></div>
+                    
+                    <div class="s-empty"></div>
+                    <div class="s-gap"></div>
+                    <div class="s-slot" id="slot-17"></div><div class="s-slot" id="slot-18"></div><div class="s-slot" id="slot-19"></div><div class="s-slot" id="slot-20"></div>
+                </div>
+            </div>
+            <div style="display:flex; justify-content:center; gap:10px; font-size:10.5px; color:var(--text-muted); font-weight:700; margin-bottom: 20px;">
+                <div style="display:flex; align-items:center; gap:4px;"><span style="width:10px;height:10px;border:1px solid #e5e5e5;background:#fff;border-radius:2px;"></span>자율석(10)</div>
+                <div style="display:flex; align-items:center; gap:4px;"><span style="width:10px;height:10px;border:1px solid #a3a3a3;background:#f4f4f5;border-radius:2px;"></span>지정석(10)</div>
+                <div style="display:flex; align-items:center; gap:4px;"><span style="width:10px;height:10px;background:#000;border-radius:2px;"></span>이용중</div>
+            </div>
+
+            <div class="rules-box">
+                <div class="rules-header">📖 정독실 이용 에티켓</div>
+                <ol class="rules-list">
+                    <li>퇴실 시 반납 필수: 자리를 비우실 때는 다음 학우를 위해 꼭 포털에서 '반납' 버튼을 눌러주세요.</li>
+                    <li>깨끗한 자리 정돈: 이용 후 지우개 가루, 음료 컵, 쓰레기는 스스로 정리해 주세요.</li>
+                    <li>면학 분위기 조성: 실내 대화는 자제해 주시고, 전자기기는 무음/진동 모드를 유지해 주세요.</li>
+                    <li>1인 1공간 원칙: 정독실과 강의실을 동시에 중복으로 예약하여 점유할 수 없습니다.</li>
+                </ol>
+            </div>
+        </div>
+
+        <div id="lectureView" style="display:none;">
+            <div class="section-title">
+                <span>강의실 주간 시간표</span>
+                <button class="btn-black" style="padding:6px 12px; font-size:11px; width:auto;" onclick="openBookingModal()">+ 분 단위 대관 신청</button>
+            </div>
+
+            <div class="room-selector">
+                <button class="room-btn active" id="btnRoom1" onclick="selectRoom('강의실 1')">강의실 1</button>
+                <button class="room-btn" id="btnRoom2" onclick="selectRoom('강의실 2')">강의실 2</button>
+                <button class="room-btn" id="btnRoom3" onclick="selectRoom('강의실 3')">강의실 3</button>
+            </div>
+
+            <div class="timetable-container">
+                <div class="timetable-header" id="timetableHeader">
+                    <div></div>
+                    <div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div><div>일</div>
+                </div>
+                <div class="timetable-scroll-area">
+                    <div class="timetable-body">
+                        <div class="time-col" id="timeColumn"></div>
+                        <div class="day-col" id="col-월"></div>
+                        <div class="day-col" id="col-화"></div>
+                        <div class="day-col" id="col-수"></div>
+                        <div class="day-col" id="col-목"></div>
+                        <div class="day-col" id="col-금"></div>
+                        <div class="day-col" id="col-토"></div>
+                        <div class="day-col" id="col-일"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rules-box">
+                <div class="rules-header">🎹 강의실 대관 에티켓</div>
+                <ol class="rules-list">
+                    <li>수업 및 공식 레슨 최우선: 검은색/네이비 🔒 고정 일정(정규 수업 및 공식 레슨)이 항상 1순위입니다.</li>
+                    <li>지난 이용 내역 보존: 투명한 운영을 위해 이미 끝난 시간대의 예약자/사용 목적도 회색 블록으로 시간표에 남겨집니다.</li>
+                    <li>퇴실 전 원상복구: 피아노 덮개 닫기, 냉난방기 소등, 쓰레기 정리를 꼭 부탁드립니다.</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="feedback-box">
+            <div class="feedback-header">📮 문화부장에게 전하는 건의함</div>
+            <div class="feedback-sub">정독실/강의실 관련 문의사항이나 개선 의견을 자유롭게 남겨주세요. (익명 접수)</div>
+            <textarea id="feedbackText" rows="2" placeholder="따뜻한 의견과 개선 건의를 편하게 적어주세요 :)" style="font-size:12.5px; resize:none; margin-bottom:8px;"></textarea>
+            <button class="btn-black" style="padding:10px; font-size:12.5px;" onclick="submitFeedback()">의견 보내기</button>
+        </div>
+
+        <button class="text-btn" style="margin-top:28px; color:var(--piano-black); font-weight:800;" onclick="openMasterLogin()">⚙️ 문화부장 마스터 직권 통제</button>
+    </div>
+</div>
+
+<div class="ai-fab" onclick="toggleAIPanel()" title="AI 스마트 비서">🤖</div>
+
+<div class="ai-panel" id="aiPanel">
+    <div class="ai-header">
+        <div class="ai-header-title">✨ 자비스 포털 도우미</div>
+        <div>
+            <button class="ai-header-btn" onclick="toggleAIPanel()">✕</button>
+        </div>
+    </div>
+    <div class="ai-body" id="aiChatBody">
+        <div class="ai-msg bot">
+            안녕하세요! 음악교육과 스마트 포털 어시스턴트 자비스입니다. 😊<br>
+            정독실 예약, 강의실 대관 및 시간표 확인은 물론, 디자인 변경이나 코드 수정도 저에게 말씀해 주세요.
+        </div>
+    </div>
+    <div class="ai-chips">
+        <div class="ai-chip" onclick="sendQuickPrompt('정독실 이용 수칙 알려줘')">📖 정독실 수칙</div>
+        <div class="ai-chip" onclick="sendQuickPrompt('강의실 하루 예약 한도를 5시간(300분)으로 늘려줘')">⚙️ 시스템 한도 변경</div>
+        <div class="ai-chip" onclick="sendQuickPrompt('정독실 자율석 버튼 색상을 파란색으로 바꿔줘')">🎨 디자인 변경</div>
+    </div>
+    <div class="ai-footer">
+        <input type="text" class="ai-input" id="aiUserInput" placeholder="질문이나 자비스 명령을 입력하세요..." onkeypress="if(event.key==='Enter') handleUserSendMessage()">
+        <button class="ai-send-btn" onclick="handleUserSendMessage()">전송</button>
+    </div>
+</div>
+
+<div class="loader-overlay" id="loader"><div class="spinner"></div></div>
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal-content">
+        <div class="modal-title" id="confirmTitle">확인</div>
+        <div class="modal-desc" id="confirmDesc">내용</div>
+        
+        <label class="agree-container" id="agreeBox" style="display:none;">
+            <input type="checkbox" id="rulesAgreeCheck">
+            <span class="agree-text">
+                [필수] 이용 수칙(퇴실 시 반납, 뒷정리 및 청결 유지 등)을 확인하였으며 이에 동의합니다.
+            </span>
+        </label>
+
+        <div class="modal-actions" id="confirmModalActions">
+            <button class="btn-white" onclick="closeConfirmModal()">취소</button>
+            <button class="btn-black" id="confirmActionBtn">확인</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="bookingModal">
+    <div class="modal-content">
+        <div class="modal-title">🎹 강의실 대관 신청</div>
+        <div class="input-group">
+            <label class="input-label">대관 강의실</label>
+            <select id="bookRoom">
+                <option value="강의실 1">강의실 1</option>
+                <option value="강의실 2">강의실 2</option>
+                <option value="강의실 3">강의실 3</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label class="input-label">요일 선택</label>
+            <select id="bookDay">
+                <option value="월">월요일</option>
+                <option value="화">화요일</option>
+                <option value="수">수요일</option>
+                <option value="목">목요일</option>
+                <option value="금">금요일</option>
+                <option value="토">토요일</option>
+                <option value="일">일요일</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label class="input-label">시작 시간</label>
+            <div style="display:flex; gap:6px;">
+                <select id="bookStartHour" onchange="autoAdjustEndTime()" style="flex:1;"></select>
+                <select id="bookStartMin" onchange="autoAdjustEndTime()" style="flex:1;">
+                    <option value="00">00분</option><option value="10">10분</option><option value="20">20분</option>
+                    <option value="30">30분</option><option value="40">40분</option><option value="50">50분</option>
+                </select>
+            </div>
+        </div>
+        <div class="input-group">
+            <label class="input-label">종료 시간</label>
+            <div style="display:flex; gap:6px;">
+                <select id="bookEndHour" style="flex:1;"></select>
+                <select id="bookEndMin" style="flex:1;">
+                    <option value="00">00분</option><option value="10">10분</option><option value="20">20분</option>
+                    <option value="30">30분</option><option value="40">40분</option><option value="50">50분</option>
+                </select>
+            </div>
+        </div>
+        <div class="input-group">
+            <label class="input-label">사용 목적 / 과목명</label>
+            <input type="text" id="bookPurpose" placeholder="예: 실기 연습, 합주, 부전피아노" maxlength="20">
+        </div>
+        <label class="agree-container">
+            <input type="checkbox" id="bookAgreeCheck">
+            <span class="agree-text">
+                [필수] 수업/레슨 최우선 원칙 및 소등·건반 덮개 닫기 수칙에 동의합니다.
+            </span>
+        </label>
+        <div class="modal-actions">
+            <button class="btn-white" onclick="closeBookingModal()">닫기</button>
+            <button class="btn-black" onclick="submitTimetableBooking()">예약 확정</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="adminFixedModal">
+    <div class="modal-content">
+        <div class="modal-title">🏛️ 고정 수업 / 동아리 등록</div>
+        <div class="input-group">
+            <label class="input-label">대관 강의실</label>
+            <select id="fixedRoom">
+                <option value="강의실 1">강의실 1</option>
+                <option value="강의실 2">강의실 2</option>
+                <option value="강의실 3">강의실 3</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label class="input-label">요일</label>
+            <select id="fixedDay">
+                <option value="월">월요일</option>
+                <option value="화">화요일</option>
+                <option value="수">수요일</option>
+                <option value="목">목요일</option>
+                <option value="금">금요일</option>
+                <option value="토">토요일</option>
+                <option value="일">일요일</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label class="input-label">일정 분류</label>
+            <select id="fixedType">
+                <option value="정규 수업">정규 수업</option>
+                <option value="동아리 활동">동아리 활동</option>
+                <option value="공식 레슨">공식 레슨</option>
+                <option value="학과 행사">학과 행사</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label class="input-label">시작 시간</label>
+            <div style="display:flex; gap:6px;">
+                <select id="fixedStartHour" onchange="autoAdjustFixedEndTime()" style="flex:1;"></select>
+                <select id="fixedStartMin" onchange="autoAdjustFixedEndTime()" style="flex:1;">
+                    <option value="00">00분</option><option value="10">10분</option><option value="20">20분</option>
+                    <option value="30">30분</option><option value="40">40분</option><option value="50">50분</option>
+                </select>
+            </div>
+        </div>
+        <div class="input-group">
+            <label class="input-label">종료 시간</label>
+            <div style="display:flex; gap:6px;">
+                <select id="fixedEndHour" style="flex:1;"></select>
+                <select id="fixedEndMin" style="flex:1;">
+                    <option value="00">00분</option><option value="10">10분</option><option value="20">20분</option>
+                    <option value="30">30분</option><option value="40">40분</option><option value="50">50분</option>
+                </select>
+            </div>
+        </div>
+        <div class="input-group">
+            <label class="input-label">과목명 또는 활동명</label>
+            <input type="text" id="fixedTitle" placeholder="예: 서양음악사2, 오디오플레이 합주" maxlength="25">
+        </div>
+        <div class="modal-actions">
+            <button class="btn-white" onclick="closeAdminFixedModal()">닫기</button>
+            <button class="btn-black" onclick="submitFixedBooking()">🔒 고정 등록</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="adminModal">
+    <div class="modal-content" style="max-width: 440px; padding: 20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+            <div class="section-title" style="margin:0; border:none; padding:0;">⚙️ 통합 관리자 제어</div>
+            <input type="date" id="adminDatePicker" onchange="renderAdmin(currentAdminMode)" style="padding:6px 10px; font-size:12px; width:auto; border-radius:6px; border:1px solid #e5e5e5; background:#f4f4f5; font-family:inherit;">
+        </div>
+        <button style="position:absolute; top:20px; right:20px; background:none;border:none;font-size:20px;cursor:pointer;" onclick="closeAdminModal()">×</button>
+        
+        <button class="btn-admin-action" onclick="openAdminFixedModal()">🏛️ 정규수업 / 동아리 고정 일정 등록</button>
+        <button class="btn-danger" onclick="autoRevokeUnderusedSeats()">⚡ 주간 의무시간 미달자 자동 회수</button>
+        
+        <div style="display:flex; gap:4px; margin-bottom:14px; flex-wrap:wrap;">
+            <button id="adminBtn_study_assign" class="btn-black" style="padding:8px 0; font-size:11px; flex:1 1 28%; min-width:80px;" onclick="renderAdmin('study_assign')">지정석</button>
+            <button id="adminBtn_study_free" class="btn-white" style="padding:8px 0; font-size:11px; flex:1 1 28%; min-width:80px;" onclick="renderAdmin('study_free')">정독실</button>
+            <button id="adminBtn_lecture_bookings" class="btn-white" style="padding:8px 0; font-size:11px; flex:1 1 28%; min-width:80px;" onclick="renderAdmin('lecture_bookings')">시간표</button>
+            <button id="adminBtn_users" class="btn-white" style="padding:8px 0; font-size:11px; flex:1 1 28%; min-width:80px;" onclick="renderAdmin('users')">👥 학우</button>
+            <button id="adminBtn_suggestions" class="btn-white" style="padding:8px 0; font-size:11px; flex:1 1 28%; min-width:80px; background:#f4f4f5;" onclick="renderAdmin('suggestions')">📮 건의</button>
+            <button id="adminBtn_logs" class="btn-white" style="padding:8px 0; font-size:11px; flex:1 1 28%; min-width:80px; border-color:#a3a3a3; color:#737373;" onclick="renderAdmin('logs')">📅 기록</button>
+        </div>
+        
+        <div id="adminListContainer" style="max-height:300px; overflow-y:auto; padding-right:4px;"></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="assignModal">
+    <div class="modal-content">
+        <div class="modal-title">정독실 고정석 수동 배정</div>
+        <select id="assignStudentSelect" style="margin-bottom:16px;"></select>
+        <div class="modal-actions">
+            <button class="btn-white" onclick="closeAssignModal()">취소</button>
+            <button class="btn-black" id="assignActionBtn">배정하기</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const GEMINI_API_KEY = "AQ.Ab8RN6LCrJwylAGHKwKB4UGNPDKyNJmtDUyBNW9jj_c1rn6K3g"; 
+    const SUPABASE_URL = "https://oshxyyqjgpwrfrrudmet.supabase.co"; 
+    const realAuthHeaders = {
+        "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9zaHh5eXFqZ3B3cmZycnVkbWV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5MTk2NTMsImV4cCI6MjEwMzQ5NTY1M30.tfmFck1Tt0gTK-BGxXn8J23dz6bflsfy9uLzBRMhJUA",
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9zaHh5eXFqZ3B3cmZycnVkbWV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5MTk2NTMsImV4cCI6MjEwMzQ5NTY1M30.tfmFck1Tt0gTK-BGxXn8J23dz6bflsfy9uLzBRMhJUA",
+        "Content-Type": "application/json"
+    };
+
+    let REQUIRED_WEEKLY_MINUTES = 420; 
+    let DAILY_MAX_LECTURE_MINUTES = 210; 
+    const START_HOUR = 0; 
+    const END_HOUR = 24;
+    const PX_PER_HOUR = 42; 
+
+    const BLOCK_COLORS = ['#e06d53', '#f59e0b', '#10b981', '#6366f1', '#ec4899', '#8b5cf6', '#06b6d4', '#84cc16'];
+
+    let currentUser = null;
+    let studySeats = [];
+    let lectureBookings = [];
+    let allMembers = [];
+    let currentTab = 'study';
+    let currentRoom = '강의실 1';
+    let pollingInterval = null;
+    let weeklyFinishedMinutes = 0;
+    
+    let lastStudyStr = '';
+    let lastBookingsStr = '';
+    let currentAdminMode = 'study_assign';
+
+    function showLoader() { document.getElementById('loader').style.display = 'flex'; }
+    function hideLoader() { document.getElementById('loader').style.display = 'none'; }
+    function showToast(msg) {
+        const c = document.getElementById('toastContainer');
+        const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = msg;
+        c.appendChild(t); setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3000);
+    }
+
+    let confirmCallback = null;
+    let requiresAgreement = false;
+
+    function openConfirm(title, desc, callback, needAgree = false, extraBtn = null) {
+        document.getElementById('confirmTitle').innerText = title;
+        document.getElementById('confirmDesc').innerHTML = desc;
+        confirmCallback = callback;
+        requiresAgreement = needAgree;
+
+        const agreeBox = document.getElementById('agreeBox');
+        const check = document.getElementById('rulesAgreeCheck');
+        if (needAgree) {
+            agreeBox.style.display = 'flex';
+            check.checked = false;
+        } else {
+            agreeBox.style.display = 'none';
+            check.checked = true;
+        }
+
+        const actions = document.getElementById('confirmModalActions');
+        actions.innerHTML = `
+            <button class="btn-white" onclick="closeConfirmModal()">취소</button>
+            <button class="btn-black" id="confirmActionBtn">확인</button>
+        `;
+        document.getElementById('confirmActionBtn').onclick = () => { 
+            if (requiresAgreement) {
+                const isChecked = document.getElementById('rulesAgreeCheck').checked;
+                if (!isChecked) return showToast('⚠️ 이용 수칙 동의란에 체크해 주세요.');
+            }
+            closeConfirmModal(); 
+            if(confirmCallback) confirmCallback(); 
+        };
+
+        if (extraBtn) {
+            actions.prepend(extraBtn);
+        }
+
+        const m = document.getElementById('confirmModal');
+        m.style.display = 'flex'; setTimeout(() => m.style.opacity = '1', 10);
+    }
+
+    function closeConfirmModal() {
+        const m = document.getElementById('confirmModal'); m.style.opacity = '0'; setTimeout(() => m.style.display = 'none', 200);
+    }
+
+    async function fetchAPI(endpoint, method = 'GET', body = null, isSilent = false) {
+        if(!isSilent) showLoader();
+        try {
+            const options = { method, headers: realAuthHeaders };
+            if(body) { options.body = JSON.stringify(body); options.headers['Prefer'] = 'return=representation'; }
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, options);
+            if(!res.ok) throw new Error();
+            const data = (method !== 'DELETE') ? await res.json() : null;
+            if(!isSilent) hideLoader(); return data;
+        } catch(e) { if(!isSilent) hideLoader(); if(!isSilent) showToast('통신 오류'); return null; }
+    }
+
+    async function logAction(type, name, action, uName, uId, durationMins = 0) {
+        await fetchAPI('reservation_logs', 'POST', {
+            target_type: type,
+            target_name: name,
+            action_type: action,
+            user_name: uName,
+            user_student_id: uId,
+            duration_minutes: durationMins
+        }, true);
+    }
+
+    async function submitFeedback() {
+        const text = document.getElementById('feedbackText').value.trim();
+        if (!text) return showToast('의견 내용을 작성해 주세요.');
+
+        await logAction('건의사항', '익명 건의함', text, currentUser.name, currentUser.student_id, 0);
+        document.getElementById('feedbackText').value = '';
+        showToast('💌 소중한 의견이 전송되었습니다. 감사합니다!');
+    }
+
+    function toggleAuth(showReg) {
+        document.getElementById('loginSection').style.display = showReg ? 'none' : 'block';
+        document.getElementById('registerSection').style.display = showReg ? 'block' : 'none';
+    }
+
+    async function handleRegister() {
+        const n = document.getElementById('regName').value.trim(); const i = document.getElementById('regId').value.trim();
+        const g = document.getElementById('regGrade').value; const p = document.getElementById('regPw').value.trim();
+        if(!n || i.length !== 10 || !p) return showToast('필수 정보 및 학번 10자리를 확인하세요.');
+        const check = await fetchAPI(`members?student_id=eq.${i}`);
+        if(check && check.length > 0) return showToast('이미 가입된 학번입니다.');
+        await fetchAPI('members', 'POST', { student_id: i, name: n, grade: g, password: p, phone: '' });
+        showToast('가입 완료! 로그인하세요.'); toggleAuth(false);
+    }
+
+    async function handleLogin() {
+        const i = document.getElementById('loginId').value.trim(); const p = document.getElementById('loginPw').value.trim();
+        if(!i || !p) return showToast('입력해주세요.');
+        const res = await fetchAPI(`members?student_id=eq.${i}&password=eq.${p}`);
+        if(res && res.length > 0) { currentUser = res[0]; localStorage.setItem('gnu_user', JSON.stringify(currentUser)); initDash(); }
+        else showToast('정보 불일치');
+    }
+
+    const saved = localStorage.getItem('gnu_user');
+    if(saved) { currentUser = JSON.parse(saved); initDash(); }
+
+    function handleLogout() {
+        localStorage.removeItem('gnu_user'); clearInterval(pollingInterval);
+        document.getElementById('authView').style.display = 'block'; document.getElementById('mainView').style.display = 'none'; document.getElementById('mainTabs').style.display = 'none';
+    }
+
+    async function initDash() {
+        document.getElementById('authView').style.display = 'none'; document.getElementById('mainView').style.display = 'block'; document.getElementById('mainTabs').style.display = 'flex';
+        document.getElementById('userGreeting').innerText = `👤 [${currentUser.grade}] ${currentUser.name}`;
+        initTimetableGrid();
+        
+        const todayStr = new Date(Date.now() - new Date().getTimezoneOffset()*60000).toISOString().split('T')[0];
+        document.getElementById('myHistoryDate').value = todayStr;
+        fetchMyHistory();
+
+        const settings = await fetchAPI('system_settings', 'GET', null, true);
+        if (settings) {
+            settings.forEach(s => {
+                if(s.setting_key === 'daily_max_lecture_minutes') DAILY_MAX_LECTURE_MINUTES = s.setting_value;
+                if(s.setting_key === 'study_required_weekly_minutes') REQUIRED_WEEKLY_MINUTES = s.setting_value;
+            });
+        }
+
+        loadAll(false);
+        fetchWeeklyUsage();
+        pollingInterval = setInterval(() => { loadAll(true); }, 3000);
+    }
+
+    async function fetchMyHistory() {
+        if(!currentUser) return;
+        const dateVal = document.getElementById('myHistoryDate').value;
+        if(!dateVal) return;
+        
+        const resDiv = document.getElementById('myHistoryResult');
+        resDiv.innerHTML = '<span style="color:#a3a3a3;">기록을 불러오는 중...</span>';
+        
+        const url = `reservation_logs?user_student_id=eq.${currentUser.student_id}&created_at=gte.${dateVal}T00:00:00&created_at=lte.${dateVal}T23:59:59&order=created_at.asc`;
+        const logs = await fetchAPI(url, 'GET', null, true);
+        
+        if(!logs || logs.length === 0) {
+            resDiv.innerHTML = '선택하신 날짜의 이용 기록이 없습니다.';
+            return;
+        }
+        
+        let html = '<div style="display:flex; flex-direction:column; gap:6px; margin-top:4px; width:100%;">';
+        logs.forEach(l => {
+            const dt = new Date(l.created_at);
+            const tStr = `${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+            const durStr = l.duration_minutes ? ` <span style="color:#4f46e5;">(${l.duration_minutes}분)</span>` : '';
+            html += `<div style="font-size:12px; border-bottom:1px solid #f0f0f0; padding-bottom:6px; font-weight:600;">
+                <span style="color:#737373; margin-right:6px;">${tStr}</span>
+                [${l.target_type}] ${l.target_name} - ${l.action_type}${durStr}
+            </div>`;
+        });
+        html += '</div>';
+        resDiv.innerHTML = html;
+    }
+
+    function getMondayOfCurrentWeek() {
+        const d = new Date();
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+        const monday = new Date(d.setDate(diff));
+        monday.setHours(0, 0, 0, 0);
+        return monday.toISOString();
+    }
+
+    async function fetchWeeklyUsage() {
+        if(!currentUser || !currentUser.student_id) return;
+        const mondayISO = getMondayOfCurrentWeek();
+        const logs = await fetchAPI(`reservation_logs?user_student_id=eq.${currentUser.student_id}&target_type=eq.정독실&action_type=eq.반납(퇴실)&created_at=gte.${mondayISO}&select=duration_minutes`, 'GET', null, true);
+        if(logs) {
+            weeklyFinishedMinutes = logs.reduce((sum, item) => sum + (item.duration_minutes || 0), 0);
+        }
+        updateWeeklyDisplay();
+    }
+
+    function getMyAssignedSeat() {
+        if(!currentUser || !currentUser.student_id) return null;
+        return studySeats.find(s => {
+            return s.seat_type === '지정석' &&
+                   s.assigned_id && 
+                   String(s.assigned_id).trim() !== '' && 
+                   String(s.assigned_id) !== 'null' && 
+                   String(s.assigned_id) !== 'undefined' && 
+                   String(s.assigned_id).trim() === String(currentUser.student_id).trim();
+        });
+    }
+
+    function updateWeeklyDisplay() {
+        if(!currentUser || !currentUser.student_id) return;
+        
+        const myAssigned = getMyAssignedSeat();
+        const card = document.getElementById('myAssignedSeatCard');
+        const box = document.getElementById('weeklyReportBox');
+
+        if(myAssigned) {
+            card.style.display = 'flex';
+            document.getElementById('myAssignedSeatText').innerText = `🏷️ 2학기 고정석: ${myAssigned.seat_number}번 좌석`;
+            box.style.display = 'flex';
+            
+            let totalMins = weeklyFinishedMinutes;
+            const activeSeat = studySeats.find(s => s.user_student_id && String(s.user_student_id).trim() === String(currentUser.student_id).trim() && s.is_occupied && s.expire_at > Date.now());
+            if(activeSeat && activeSeat.check_in_ms) {
+                const ongoingMins = Math.max(0, Math.floor((Date.now() - activeSeat.check_in_ms) / 60000));
+                totalMins += ongoingMins;
+            }
+
+            const hrs = Math.floor(totalMins / 60);
+            const mins = totalMins % 60;
+            document.getElementById('weeklyTimeVal').innerText = `${hrs}시간 ${mins}분 (기준: ${Math.round(REQUIRED_WEEKLY_MINUTES/60)}시간)`;
+        } else {
+            card.style.display = 'none';
+            box.style.display = 'none';
+        }
+    }
+
+    function switchTab(tab) {
+        currentTab = tab;
+        document.getElementById('tabStudy').className = `tab ${tab==='study'?'active':''}`;
+        document.getElementById('tabLecture').className = `tab ${tab==='lecture'?'active':''}`;
+        document.getElementById('studyView').style.display = tab==='study' ? 'block' : 'none';
+        document.getElementById('lectureView').style.display = tab==='lecture' ? 'block' : 'none';
+        updateStatusBox();
+    }
+
+    function selectRoom(roomName) {
+        currentRoom = roomName;
+        document.getElementById('btnRoom1').className = `room-btn ${roomName==='강의실 1'?'active':''}`;
+        document.getElementById('btnRoom2').className = `room-btn ${roomName==='강의실 2'?'active':''}`;
+        document.getElementById('btnRoom3').className = `room-btn ${roomName==='강의실 3'?'active':''}`;
+        renderTimetable();
+    }
+
+    function initTimetableGrid() {
+        const timeCol = document.getElementById('timeColumn');
+        timeCol.innerHTML = '';
+        for(let h = START_HOUR; h < END_HOUR; h++) {
+            const cell = document.createElement('div');
+            cell.className = 'time-cell';
+            cell.innerText = `${String(h).padStart(2,'0')}:00`;
+            timeCol.appendChild(cell);
+        }
+
+        const days = ['월', '화', '수', '목', '금', '토', '일'];
+        const today = new Date();
+        const currentDay = today.getDay(); 
+        const diffToMonday = today.getDate() - currentDay + (currentDay === 0 ? -6 : 1);
+        
+        const header = document.getElementById('timetableHeader');
+        header.innerHTML = '<div></div>';
+        
+        for(let i = 0; i < 7; i++) {
+            const d = new Date(today.getFullYear(), today.getMonth(), diffToMonday + i);
+            const isToday = (d.toDateString() === today.toDateString());
+            const dateStr = `${d.getMonth() + 1}/${d.getDate()}`;
+            
+            const headCell = document.createElement('div');
+            headCell.style.display = 'flex';
+            headCell.style.flexDirection = 'column';
+            headCell.style.justifyContent = 'center';
+            headCell.style.alignItems = 'center';
+            if(isToday) headCell.style.color = '#2563eb'; 
+            
+            headCell.innerHTML = `<div>${days[i]}</div><div style="font-size:9.5px; opacity:0.8; font-weight:600; margin-top:2px;">${dateStr}</div>`;
+            header.appendChild(headCell);
+
+            const col = document.getElementById(`col-${days[i]}`);
+            col.innerHTML = '';
+            for(let h = START_HOUR; h < END_HOUR; h++) {
+                const slot = document.createElement('div');
+                slot.className = 'grid-slot';
+                slot.onclick = () => openBookingModal(days[i], h, '00');
+                col.appendChild(slot);
+            }
+        }
+    }
+
+    function timeStringToMinutes(str) {
+        if(!str) return 0;
+        const [h, m] = str.split(':').map(Number);
+        return h * 60 + (m || 0);
+    }
+
+    function checkIsPastBooking(dayStr, endStr) {
+        const dayMap = { '월': 1, '화': 2, '수': 3, '목': 4, '금': 5, '토': 6, '일': 7 };
+        const now = new Date();
+        let currentDay = now.getDay();
+        if (currentDay === 0) currentDay = 7;
+
+        const targetDay = dayMap[dayStr] || 0;
+        if (currentDay > targetDay) return true;
+        if (currentDay < targetDay) return false;
+
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+        const endMinutes = timeStringToMinutes(endStr);
+        return currentMinutes >= endMinutes;
+    }
+
+    async function loadAll(isSilent = true) {
+        const [sData, bData] = await Promise.all([ 
+            fetchAPI('study_seats?order=seat_number.asc', 'GET', null, isSilent), 
+            fetchAPI('lecture_bookings?order=id.asc', 'GET', null, isSilent) 
+        ]);
+        
+        if(sData) {
+            const newStr = JSON.stringify(sData);
+            if(lastStudyStr !== newStr) { studySeats = sData; lastStudyStr = newStr; renderStudy(); }
+        }
+        if(bData) {
+            const monday = new Date();
+            const day = monday.getDay();
+            const diff = monday.getDate() - day + (day === 0 ? -6 : 1);
+            monday.setDate(diff);
+            monday.setHours(0,0,0,0);
+            
+            const validBookings = bData.filter(b => {
+                if (b.user_student_id === 'ADMIN_FIXED') return true;
+                return new Date(b.created_at) >= monday;
+            });
+
+            const newStr = JSON.stringify(validBookings);
+            if(lastBookingsStr !== newStr) { lectureBookings = validBookings; lastBookingsStr = newStr; renderTimetable(); }
+        }
+        updateStatusBox();
+        updateWeeklyDisplay();
+    }
+
+    function renderStudy() {
+        const now = Date.now();
+
+        studySeats.forEach(s => {
+            const div = document.getElementById(`slot-${s.seat_number}`);
+            if(!div) return;
+            const isLive = s.is_occupied && s.expire_at > now;
+            
+            const isAssignedToMe = (s.seat_type === '지정석') && currentUser && s.assigned_id && String(s.assigned_id).trim() === String(currentUser.student_id).trim();
+            const hasValidAssign = (s.seat_type === '지정석') && s.assigned_id && String(s.assigned_id).trim() !== '' && String(s.assigned_id) !== 'null' && String(s.assigned_id) !== 'undefined';
+            const isUnassigned = s.seat_type === '지정석' && !hasValidAssign;
+            
+            div.className = `s-slot ${s.seat_type==='지정석'?'type-assign':''} ${isUnassigned?'can-apply':''} ${isLive?'occupied':''} ${isAssignedToMe?'mine':''}`;
+            
+            if(s.seat_type === '지정석') {
+                if(isLive) {
+                    div.innerHTML = `<div class="seat-num">${s.seat_number}</div><div class="seat-info">${s.user_name}<br>이용중</div>`;
+                } else if(hasValidAssign) {
+                    if(isAssignedToMe) {
+                        div.innerHTML = `<div class="seat-num">${s.seat_number}</div><div class="seat-info" style="font-weight:900;">내 고정석<br>터치 관리</div>`;
+                    } else {
+                        div.innerHTML = `<div class="seat-num">${s.seat_number}</div><div class="seat-info">${s.assigned_name}<br>고정</div>`;
+                    }
+                } else {
+                    div.innerHTML = `<div class="seat-num">${s.seat_number}</div><div class="seat-info" style="color:#4f46e5;font-weight:800;">신청<br>가능</div>`;
+                }
+                div.onclick = () => clickStudy(s, isLive, isAssignedToMe);
+            } else {
+                div.innerHTML = isLive ? `<div class="seat-num">${s.seat_number}</div><div class="seat-info">${s.user_name}</div>` : `<div class="seat-num">${s.seat_number}</div><div class="seat-info">자율</div>`;
+                div.onclick = () => clickStudy(s, isLive, false);
+            }
+        });
+    }
+
+    function renderTimetable() {
+        const days = ['월', '화', '수', '목', '금', '토', '일'];
+        days.forEach(day => {
+            const col = document.getElementById(`col-${day}`);
+            if(!col) return;
+            col.querySelectorAll('.booking-block').forEach(b => b.remove());
+        });
+
+        const currentRoomBookings = lectureBookings.filter(b => b.room_name === currentRoom);
+
+        currentRoomBookings.forEach((b, idx) => {
+            const col = document.getElementById(`col-${b.day_of_week}`);
+            if (!col) return;
+
+            const sTimeStr = b.start_time || `${String(b.start_hour).padStart(2,'0')}:00`;
+            const eTimeStr = b.end_time || `${String(b.end_hour).padStart(2,'0')}:00`;
+
+            const startMins = timeStringToMinutes(sTimeStr);
+            const endMins = timeStringToMinutes(eTimeStr);
+            const baseStartMins = START_HOUR * 60;
+
+            const topPx = (startMins - baseStartMins) * (PX_PER_HOUR / 60);
+            const heightPx = (endMins - startMins) * (PX_PER_HOUR / 60) - 3;
+            
+            const isFixed = (b.user_student_id === 'ADMIN_FIXED');
+            const isMine = currentUser && !isFixed && String(b.user_student_id).trim() === String(currentUser.student_id).trim();
+            const isPast = checkIsPastBooking(b.day_of_week, eTimeStr);
+            const color = BLOCK_COLORS[idx % BLOCK_COLORS.length];
+
+            const block = document.createElement('div');
+            
+            let blockClass = 'booking-block';
+            if (isFixed) blockClass += ' block-fixed';
+            else if (isPast) blockClass += ' block-past';
+            else if (isMine) blockClass += ' block-mine';
+
+            block.className = blockClass;
+            block.style.top = `${topPx + 2}px`;
+            block.style.height = `${Math.max(heightPx, 18)}px`;
+            if(!isFixed && !isPast) block.style.backgroundColor = color;
+
+            if (isFixed) {
+                block.innerHTML = `
+                    <div class="badge-fixed">🔒 ${b.user_name}</div>
+                    <div style="font-size:10.5px; font-weight:900;">${b.purpose}</div>
+                    <div style="font-size:8.5px; opacity:0.85; margin-top:2px;">${sTimeStr}~${eTimeStr}</div>
+                `;
+            } else {
+                block.innerHTML = `
+                    <div style="font-size:10px; font-weight:800;">${b.purpose || '대관'}</div>
+                    <div style="font-size:8.5px; opacity:0.95; margin-top:1px;">${b.user_name}</div>
+                `;
+            }
+
+            block.onclick = (e) => {
+                e.stopPropagation();
+                if(isFixed) {
+                    return showToast(`🔒 [공식 일정] ${b.day_of_week}요일 ${sTimeStr}~${eTimeStr}<br><b>${b.purpose}</b> (${b.user_name})<br>※ 정규 수업/공식 일정은 임의 취소 불가`);
+                }
+                if(isPast) {
+                    return showToast(`[이용완료] ${b.day_of_week}요일 ${sTimeStr}~${eTimeStr}<br>${b.user_name} 학우의 완료된 대관 내역입니다.`);
+                }
+                if(isMine) {
+                    openConfirm('대관 취소', `[${b.room_name}] ${b.day_of_week}요일 ${sTimeStr}~${eTimeStr}<br>대관 예약을 취소하시겠습니까?`, async () => {
+                        await fetchAPI(`lecture_bookings?id=eq.${b.id}`, 'DELETE');
+                        await logAction('강의실', b.room_name, `[대관취소] ${b.day_of_week}요일 ${sTimeStr}~${eTimeStr}`, currentUser.name, currentUser.student_id, 0);
+                        showToast('예약이 취소되었습니다.');
+                        loadAll(false);
+                    });
+                } else {
+                    showToast(`[${b.user_name}] 학우가 대관 중인 시간대입니다.<br>(${sTimeStr}~${eTimeStr} / ${b.purpose})`);
+                }
+            };
+
+            col.appendChild(block);
+        });
+    }
+
+    function openBookingModal(defaultDay = '월', defaultHour = 9, defaultMin = '00') {
+        document.getElementById('bookRoom').value = currentRoom;
+        document.getElementById('bookDay').value = defaultDay;
+        
+        const sHourSelect = document.getElementById('bookStartHour');
+        sHourSelect.innerHTML = '';
+        for(let h = START_HOUR; h < END_HOUR; h++) {
+            sHourSelect.innerHTML += `<option value="${String(h).padStart(2,'0')}">${String(h).padStart(2,'0')}시</option>`;
+        }
+        sHourSelect.value = String(defaultHour).padStart(2,'0');
+        document.getElementById('bookStartMin').value = defaultMin;
+
+        document.getElementById('bookPurpose').value = '';
+        document.getElementById('bookAgreeCheck').checked = false;
+        
+        autoAdjustEndTime();
+
+        const m = document.getElementById('bookingModal');
+        m.style.display = 'flex';
+        setTimeout(() => m.style.opacity = '1', 10);
+    }
+
+    function closeBookingModal() {
+        const m = document.getElementById('bookingModal');
+        m.style.opacity = '0';
+        setTimeout(() => m.style.display = 'none', 200);
+    }
+
+    function autoAdjustEndTime() {
+        const sH = parseInt(document.getElementById('bookStartHour').value);
+        const sM = document.getElementById('bookStartMin').value;
+        
+        const eHourSelect = document.getElementById('bookEndHour');
+        eHourSelect.innerHTML = '';
+        for(let h = sH; h <= END_HOUR; h++) {
+            eHourSelect.innerHTML += `<option value="${String(h).padStart(2,'0')}">${String(h).padStart(2,'0')}시</option>`;
+        }
+        
+        const targetEndH = Math.min(sH + 1, END_HOUR);
+        eHourSelect.value = String(targetEndH).padStart(2,'0');
+        document.getElementById('bookEndMin').value = (targetEndH === 24) ? '00' : sM;
+    }
+
+    async function submitTimetableBooking() {
+        const room = document.getElementById('bookRoom').value;
+        const day = document.getElementById('bookDay').value;
+        const sH = document.getElementById('bookStartHour').value;
+        const sM = document.getElementById('bookStartMin').value;
+        const eH = document.getElementById('bookEndHour').value;
+        const eM = document.getElementById('bookEndMin').value;
+        const purpose = document.getElementById('bookPurpose').value.trim() || '자율 연습';
+        const isAgreed = document.getElementById('bookAgreeCheck').checked;
+
+        if (!isAgreed) return showToast('⚠️ 이용 수칙 동의란에 체크해 주세요.');
+
+        const sTimeStr = `${sH}:${sM}`;
+        const eTimeStr = `${eH}:${eM}`;
+        const newStartMins = timeStringToMinutes(sTimeStr);
+        const newEndMins = timeStringToMinutes(eTimeStr);
+
+        if (newEndMins <= newStartMins) {
+            return showToast('종료 시간은 시작 시간보다 늦어야 합니다.');
+        }
+
+        const newDuration = newEndMins - newStartMins;
+        const myBookingsToday = lectureBookings.filter(b => 
+            b.day_of_week === day && 
+            b.user_student_id === currentUser.student_id
+        );
+        
+        let myTotalMinsToday = 0;
+        myBookingsToday.forEach(b => {
+            const bStart = timeStringToMinutes(b.start_time || `${String(b.start_hour).padStart(2,'0')}:00`);
+            const bEnd = timeStringToMinutes(b.end_time || `${String(b.end_hour).padStart(2,'0')}:00`);
+            myTotalMinsToday += (bEnd - bStart);
+        });
+
+        if (myTotalMinsToday + newDuration > DAILY_MAX_LECTURE_MINUTES) {
+            const remainMins = DAILY_MAX_LECTURE_MINUTES - myTotalMinsToday;
+            const maxHrs = Math.floor(DAILY_MAX_LECTURE_MINUTES / 60);
+            const maxMins = DAILY_MAX_LECTURE_MINUTES % 60;
+            return showToast(`⚠️ 1일 최대 대관 시간(${maxHrs}시간 ${maxMins}분)을 초과했습니다.<br>${day}요일 남은 대관 가능 시간: ${remainMins}분`);
+        }
+
+        const conflict = lectureBookings.find(b => {
+            if(b.room_name !== room || b.day_of_week !== day) return false;
+            const bSTime = b.start_time || `${String(b.start_hour).padStart(2,'0')}:00`;
+            const bETime = b.end_time || `${String(b.end_hour).padStart(2,'0')}:00`;
+            const existStart = timeStringToMinutes(bSTime);
+            const existEnd = timeStringToMinutes(bETime);
+            return (newStartMins < existEnd && newEndMins > existStart);
+        });
+
+        if(conflict) {
+            const cSTime = conflict.start_time || `${String(conflict.start_hour).padStart(2,'0')}:00`;
+            const cETime = conflict.end_time || `${String(conflict.end_hour).padStart(2,'0')}:00`;
+            const cName = conflict.user_student_id === 'ADMIN_FIXED' ? `[${conflict.user_name}] ${conflict.purpose}` : `${conflict.user_name} 학우`;
+            return showToast(`앗! 해당 시간에 이미 ${cName}의 일정(${cSTime}~${cETime})이 존재합니다.`);
+        }
+
+        await fetchAPI('lecture_bookings', 'POST', {
+            room_name: room,
+            day_of_week: day,
+            start_hour: parseInt(sH),
+            end_hour: parseInt(eH),
+            start_time: sTimeStr,
+            end_time: eTimeStr,
+            purpose: purpose,
+            user_name: currentUser.name,
+            user_student_id: currentUser.student_id
+        });
+
+        await logAction('강의실', room, `[대관신청] ${day}요일 ${sTimeStr}~${eTimeStr} (${purpose})`, currentUser.name, currentUser.student_id, 0);
+
+        showToast(`🎉 [${room}] ${day}요일 ${sTimeStr}~${eTimeStr} 예약이 확정되었습니다!`);
+        closeBookingModal();
+        currentRoom = room;
+        selectRoom(room);
+        loadAll(false);
+    }
+
+    function openAdminFixedModal() {
+        document.getElementById('fixedRoom').value = currentRoom;
+        document.getElementById('fixedTitle').value = '';
+        
+        const sHourSelect = document.getElementById('fixedStartHour');
+        sHourSelect.innerHTML = '';
+        for(let h = START_HOUR; h < END_HOUR; h++) {
+            sHourSelect.innerHTML += `<option value="${String(h).padStart(2,'0')}">${String(h).padStart(2,'0')}시</option>`;
+        }
+        sHourSelect.value = '09';
+        document.getElementById('fixedStartMin').value = '00';
+        
+        autoAdjustFixedEndTime();
+
+        const m = document.getElementById('adminFixedModal');
+        m.style.display = 'flex';
+        setTimeout(() => m.style.opacity = '1', 10);
+    }
+
+    function closeAdminFixedModal() {
+        const m = document.getElementById('adminFixedModal');
+        m.style.opacity = '0';
+        setTimeout(() => m.style.display = 'none', 200);
+    }
+
+    function autoAdjustFixedEndTime() {
+        const sH = parseInt(document.getElementById('fixedStartHour').value);
+        const sM = document.getElementById('fixedStartMin').value;
+        
+        const eHourSelect = document.getElementById('fixedEndHour');
+        eHourSelect.innerHTML = '';
+        for(let h = sH; h <= END_HOUR; h++) {
+            eHourSelect.innerHTML += `<option value="${String(h).padStart(2,'0')}">${String(h).padStart(2,'0')}시</option>`;
+        }
+        
+        const targetEndH = Math.min(sH + 2, END_HOUR);
+        eHourSelect.value = String(targetEndH).padStart(2,'0');
+        document.getElementById('fixedEndMin').value = (targetEndH === 24) ? '00' : sM;
+    }
+
+    async function submitFixedBooking() {
+        const room = document.getElementById('fixedRoom').value;
+        const day = document.getElementById('fixedDay').value;
+        const type = document.getElementById('fixedType').value;
+        const sH = document.getElementById('fixedStartHour').value;
+        const sM = document.getElementById('fixedStartMin').value;
+        const eH = document.getElementById('fixedEndHour').value;
+        const eM = document.getElementById('fixedEndMin').value;
+        const title = document.getElementById('fixedTitle').value.trim();
+
+        if (!title) return showToast('과목명 또는 활동명을 입력해 주세요.');
+
+        const sTimeStr = `${sH}:${sM}`;
+        const eTimeStr = `${eH}:${eM}`;
+        const newStartMins = timeStringToMinutes(sTimeStr);
+        const newEndMins = timeStringToMinutes(eTimeStr);
+
+        if (newEndMins <= newStartMins) return showToast('종료 시간은 시작 시간보다 늦어야 합니다.');
+
+        await fetchAPI('lecture_bookings', 'POST', {
+            room_name: room,
+            day_of_week: day,
+            start_hour: parseInt(sH),
+            end_hour: parseInt(eH),
+            start_time: sTimeStr,
+            end_time: eTimeStr,
+            purpose: title,
+            user_name: type,
+            user_student_id: 'ADMIN_FIXED'
+        });
+
+        await logAction('강의실', room, `[고정일정등록] ${day}요일 ${sTimeStr}~${eTimeStr} [${type}] ${title}`, currentUser.name, currentUser.student_id, 0);
+
+        showToast(`🔒 [${room}] ${day}요일 ${sTimeStr}~${eTimeStr} 고정 등록 완료!`);
+        closeAdminFixedModal();
+        currentRoom = room;
+        selectRoom(room);
+        loadAll(false);
+    }
+
+    function clickStudy(s, isLive, isAssignedToMe) {
+        const hasValidAssign = (s.seat_type === '지정석') && s.assigned_id && String(s.assigned_id).trim() !== '' && String(s.assigned_id) !== 'null' && String(s.assigned_id) !== 'undefined';
+
+        if(s.seat_type === '지정석' && !hasValidAssign) {
+            handleApplyOrChangeDesignatedSeat(s);
+            return;
+        }
+
+        if(s.seat_type === '지정석' && !isAssignedToMe) {
+            return showToast(`[${s.assigned_name}] 학우의 고정 지정석입니다.`);
+        }
+
+        if(s.seat_type === '지정석' && isAssignedToMe) {
+            if(isLive) {
+                openConfirm('반납 및 퇴실', '정독실 이용을 종료하고 퇴실할까요?', () => doAction('study_seats', s.seat_number, false, 0, `${s.seat_number}번`, s), false);
+            } else {
+                const returnBtn = document.createElement('button');
+                returnBtn.className = 'btn-danger';
+                returnBtn.style.margin = '0';
+                returnBtn.style.flex = '1';
+                returnBtn.innerText = '지정석 반환(취소)';
+                returnBtn.onclick = () => {
+                    closeConfirmModal();
+                    cancelMyAssignedSeat();
+                };
+
+                openConfirm(
+                    `내 고정석 (${s.seat_number}번)`,
+                    `<b>[${s.seat_number}번]</b> 좌석에 입실하시겠습니까?<br><small style="color:#737373;">(고정을 취소하고 자리를 비우려면 아래 [지정석 반환]을 누르세요)</small>`,
+                    () => doAction('study_seats', s.seat_number, true, 12*60, `${s.seat_number}번`, s),
+                    false,
+                    returnBtn
+                );
+            }
+            return;
+        }
+
+        if(isLive) {
+            if(currentUser && s.user_student_id && String(s.user_student_id).trim() === String(currentUser.student_id).trim()) {
+                openConfirm('반납 및 퇴실', '정독실 이용을 종료하고 퇴실할까요?', () => doAction('study_seats', s.seat_number, false, 0, `${s.seat_number}번`, s), false);
+            } else {
+                showToast('타인이 이용 중입니다.');
+            }
+        } else {
+            openConfirm('정독실 입실', `<b>[${s.seat_number}번 좌석]</b>에 입실하시겠습니까?<br>(기본 3시간 이용 가능)`, () => doAction('study_seats', s.seat_number, true, 3*60, `${s.seat_number}번`, s), true);
+        }
+    }
+
+    async function handleApplyOrChangeDesignatedSeat(seat) {
+        const mySeat = getMyAssignedSeat();
+
+        if (mySeat) {
+            openConfirm(
+                '지정석 변경',
+                `현재 보유 중인 <b>[${mySeat.seat_number}번 좌석]</b>을 반환하고<br><b>[${seat.seat_number}번 좌석]</b>으로 변경하시겠습니까?`,
+                async () => {
+                    await fetchAPI(`study_seats?seat_number=eq.${mySeat.seat_number}`, 'PATCH', { 
+                        assigned_name: '', 
+                        assigned_id: '', 
+                        is_occupied: false, 
+                        expire_at: 0, 
+                        check_in_ms: 0 
+                    }, true);
+
+                    await fetchAPI(`study_seats?seat_number=eq.${seat.seat_number}`, 'PATCH', { 
+                        assigned_name: currentUser.name, 
+                        assigned_id: currentUser.student_id 
+                    }, false);
+
+                    await logAction('정독실', `${seat.seat_number}번`, `[지정석변경] ${mySeat.seat_number}번 -> ${seat.seat_number}번`, currentUser.name, currentUser.student_id, 0);
+                    showToast(`🎉 [${seat.seat_number}번] 좌석으로 변경 완료되었습니다!`);
+                    loadAll(false);
+                },
+                true
+            );
+        } else {
+            openConfirm(
+                '고정 지정석 신청',
+                `<b>[${seat.seat_number}번 좌석]</b>을 2학기 고정석으로 신청하시겠습니까?<br>※ 신청 즉시 본인 고정석으로 등록됩니다.`,
+                async () => {
+                    const latest = await fetchAPI(`study_seats?seat_number=eq.${seat.seat_number}`);
+                    if(latest && latest[0] && latest[0].assigned_id && String(latest[0].assigned_id).trim() !== '' && String(latest[0].assigned_id) !== 'null') {
+                        return showToast('앗! 다른 학우가 방금 먼저 신청 완료한 좌석입니다.');
+                    }
+
+                    await fetchAPI(`study_seats?seat_number=eq.${seat.seat_number}`, 'PATCH', { 
+                        assigned_name: currentUser.name, 
+                        assigned_id: currentUser.student_id 
+                    }, false);
+
+                    await logAction('정독실', `${seat.seat_number}번`, '고정석 본인신청', currentUser.name, currentUser.student_id, 0);
+                    showToast(`🎉 ${seat.seat_number}번 고정 지정석 신청이 완료되었습니다!`);
+                    loadAll(false);
+                },
+                true
+            );
+        }
+    }
+
+    async function cancelMyAssignedSeat() {
+        const mySeat = getMyAssignedSeat();
+        if(!mySeat) return showToast('현재 배정받은 고정 지정석이 없습니다.');
+
+        openConfirm(
+            '지정석 반환',
+            `<b>[${mySeat.seat_number}번 좌석]</b> 고정 배정을 취소하시겠습니까?<br><small style="color:#ef4444;">(취소 즉시 다른 학우가 신청할 수 있는 공석으로 바뀝니다)</small>`,
+            async () => {
+                await fetchAPI(`study_seats?seat_number=eq.${mySeat.seat_number}`, 'PATCH', { 
+                    assigned_name: '', 
+                    assigned_id: '', 
+                    is_occupied: false, 
+                    expire_at: 0, 
+                    check_in_ms: 0,
+                    user_name: '',
+                    user_student_id: '',
+                    extend_count: 0
+                }, false);
+
+                await logAction('정독실', `${mySeat.seat_number}번`, '[본인취소] 고정석 반환', currentUser.name, currentUser.student_id, 0);
+                showToast(`👋 ${mySeat.seat_number}번 좌석이 성공적으로 반환되었습니다.`);
+                loadAll(false);
+            },
+            false
+        );
+    }
+
+    async function doAction(table, idVal, isCheckIn, mins=0, targetName='', currentSeatData=null) {
+        const idCol = table === 'study_seats' ? 'seat_number' : 'id';
+        const nowMs = Date.now();
+        if(isCheckIn) {
+            const t = new Date(); const tStr = `${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+            await fetchAPI(`${table}?${idCol}=eq.${idVal}`, 'PATCH', { 
+                is_occupied: true, 
+                user_name: currentUser.name, 
+                user_student_id: currentUser.student_id, 
+                user_grade: currentUser.grade, 
+                expire_at: nowMs + (mins*60000), 
+                check_in_time: tStr, 
+                check_in_ms: nowMs,
+                extend_count: 0 
+            }, false);
+            await logAction('정독실', targetName, '입실', currentUser.name, currentUser.student_id, 0);
+            showToast('✅ 입실 처리되었습니다.');
+        } else {
+            let spentMins = 0;
+            if(currentSeatData && currentSeatData.check_in_ms) {
+                spentMins = Math.max(1, Math.round((Date.now() - currentSeatData.check_in_ms) / 60000));
+            }
+            await fetchAPI(`${table}?${idCol}=eq.${idVal}`, 'PATCH', { 
+                is_occupied: false, 
+                user_name: '', 
+                user_student_id: '', 
+                user_grade: '', 
+                expire_at: 0, 
+                check_in_time: '', 
+                check_in_ms: 0, 
+                extend_count: 0 
+            }, false);
+            await logAction('정독실', targetName, '반납(퇴실)', currentUser.name, currentUser.student_id, spentMins);
+            showToast('👋 반납 처리됨');
+            fetchWeeklyUsage();
+        }
+        loadAll(false);
+    }
+
+    function getMyCurrentSeat() {
+        if(!currentUser) return null;
+        const now = Date.now();
+        return studySeats.find(s => s.is_occupied && s.expire_at > now && s.user_student_id && String(s.user_student_id).trim() === String(currentUser.student_id).trim());
+    }
+
+    function updateStatusBox() {
+        const my = getMyCurrentSeat(); const box = document.getElementById('myStatusBox');
+        if(my) {
+            box.style.display = 'block';
+            document.getElementById('mySeatNumLabel').innerText = `${my.seat_number}번 정독실`;
+            document.getElementById('mySeatTypeLabel').innerText = my.seat_type;
+            
+            const diff = my.expire_at - Date.now();
+            const h = Math.floor(diff/3600000); const m = Math.floor((diff%3600000)/60000); const s = Math.floor((diff%60000)/1000);
+            document.getElementById('mySeatTimer').innerText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+            
+            const btn = document.getElementById('extendBtn');
+            if(my.seat_type === '자율석') {
+                btn.style.display = 'block';
+                if(my.extend_count >= 1) {
+                    btn.style.opacity = '0.4';
+                    btn.innerText = '연장 소진';
+                    btn.onclick = () => showToast('연장 기회(1회)를 이미 사용했습니다.');
+                } else {
+                    btn.style.opacity = '1';
+                    btn.innerText = '1시간 연장';
+                    btn.onclick = extendMySeat;
+                }
+            } else {
+                btn.style.display = 'none';
+            }
+        } else box.style.display = 'none';
+    }
+
+    function checkoutMySeat() {
+        const my = getMyCurrentSeat();
+        if(my) openConfirm('최종 반납', '자리 정돈(뒷정리)을 확인하셨습니까?', () => doAction('study_seats', my.seat_number, false, 0, `${my.seat_number}번`, my), false);
+    }
+
+    function extendMySeat() {
+        const my = getMyCurrentSeat(); if(!my) return;
+        
+        openConfirm('시간 연장', `이용 시간을 1시간 연장할까요?<br>(★ 최대 1회만 연장 가능합니다)`, async () => {
+            await fetchAPI(`study_seats?seat_number=eq.${my.seat_number}`, 'PATCH', { expire_at: my.expire_at + 3600000, extend_count: my.extend_count + 1 }, false);
+            await logAction('정독실', `${my.seat_number}번`, '시간 연장', currentUser.name, currentUser.student_id, 0);
+            showToast('연장되었습니다.'); loadAll(false);
+        }, false);
+    }
+
+    function toggleAIPanel() {
+        const p = document.getElementById('aiPanel');
+        p.style.display = (p.style.display === 'flex') ? 'none' : 'flex';
+        if(p.style.display === 'flex') {
+            document.getElementById('aiUserInput').focus();
+        }
+    }
+
+    function sendQuickPrompt(text) {
+        document.getElementById('aiUserInput').value = text;
+        handleUserSendMessage();
+    }
+
+    function appendAIMessage(sender, text) {
+        const body = document.getElementById('aiChatBody');
+        const div = document.createElement('div');
+        div.className = `ai-msg ${sender}`;
+        div.innerHTML = text.replace(/\n/g, '<br>');
+        body.appendChild(div);
+        body.scrollTop = body.scrollHeight;
+    }
+
+    async function handleUserSendMessage() {
+        const input = document.getElementById('aiUserInput');
+        const query = input.value.trim();
+        if(!query) return;
+
+        appendAIMessage('user', query);
+        input.value = '';
+
+        appendAIMessage('bot', '답변을 준비 중입니다... ⏳');
+        const botMessages = document.querySelectorAll('.ai-msg.bot');
+        const thinkingMsgDiv = botMessages[botMessages.length - 1];
+
+        const now = new Date();
+        const daysMap = ['일', '월', '화', '수', '목', '금', '토'];
+        const currentDayStr = daysMap[now.getDay()];
+        const currentTimeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+        const timetableContext = lectureBookings.map(b => 
+            `- [${b.room_name}] ${b.day_of_week}요일 ${b.start_time || b.start_hour+':00'}~${b.end_time || b.end_hour+':00'} : ${b.purpose} (${b.user_name})`
+        ).join('\n');
+
+        const studyContext = `총 20석 중 이용중: ${studySeats.filter(s=>s.is_occupied).length}석, 공석: ${studySeats.filter(s=>!s.is_occupied).length}석`;
+
+        const systemPrompt = `
+당신은 '경상국립대 음악교육과 스마트 예약 통합 포털'의 공식 AI 어시스턴트 자비스입니다.
+현재 사용자: ${currentUser.name} (${currentUser.grade}, 학번: ${currentUser.student_id})
+현재 시각: ${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 (${currentDayStr}요일) ${currentTimeStr}
+
+[포털 핵심 운영 수칙]
+1. 정독실:
+   - 자율석(1~4, 9~12, 17~18): 기본 3시간, 최대 1회(1시간) 연장.
+   - 지정석: 주간 최소 ${REQUIRED_WEEKLY_MINUTES}분 이용 의무.
+2. 강의실: 1인당 하루 최대 대관 한도는 ${DAILY_MAX_LECTURE_MINUTES}분.
+
+[실시간 강의실 시간표 현황]
+${timetableContext || '(등록된 시간표가 없습니다)'}
+
+[실시간 정독실 현황]
+${studyContext}
+
+[명령어 처리 규칙 - 데이터베이스/설정 변경]
+1. 시간표 등록/삭제 시:
+:::COMMAND:{"action":"ADD" 또는 "DELETE","room_name":"강의실 1","day_of_week":"수","start_time":"14:00","end_time":"16:00","purpose":"합창","category":"수업"}:::
+2. 시스템 룰 변경 시 (예: 예약 한도 5시간으로 늘려):
+:::COMMAND:{"action":"UPDATE_SETTING","key":"daily_max_lecture_minutes","value":300,"desc":"강의실 한도 300분 변경"}:::
+
+[명령어 처리 규칙 - 💡 자율 코딩 모드 (매우 중요)]
+사용자가 웹사이트의 버튼, 색상, 디자인, 레이아웃, 크기 등 '디자인 수정'이나 '코드 변경'을 지시하면 반드시 아래 JSON을 출력하세요:
+:::COMMAND:{"action":"MODIFY_CODE","desc":"사용자 요청 내용 요약"}:::
+
+[말투 및 텍스트 서식 절대 규칙 - 필수]
+1. 단정하고 정중한 존댓말을 사용하세요.
+2. 텍스트에 별표 기호를 절대 사용하지 마세요. 강조는 작은따옴표('')나 큰따옴표("")로 하세요.
+`;
+
+        try {
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+            const resp = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ role: 'user', parts: [{ text: `${systemPrompt}\n\n[학우 질문]\n${query}` }] }]
+                })
+            });
+
+            const data = await resp.json();
+            if (!resp.ok) throw new Error('API 통신 오류');
+            
+            const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || '오류 발생';
+            let cleanReply = reply;
+            const cmdMatch = reply.match(/:::COMMAND:(.*?):::/);
+            
+            if(cmdMatch) {
+                cleanReply = reply.replace(cmdMatch[0], '').trim();
+                try {
+                    const cmd = JSON.parse(cmdMatch[1]);
+                    executeAIAdminCommand(cmd);
+                } catch(err) {}
+            }
+
+            cleanReply = cleanReply.replace(/\*/g, '');
+            thinkingMsgDiv.innerHTML = cleanReply.replace(/\n/g, '<br>');
+        } catch(e) {
+            thinkingMsgDiv.innerHTML = `⚠️ <b>에러 발생:</b> 잠시 후 다시 시도해 주세요.`;
+        }
+    }
+
+    async function executeAIAdminCommand(cmd) {
+        if(cmd.action === 'MODIFY_CODE') {
+            modifyCodeViaGitHub(cmd.desc);
+        } else if(cmd.action === 'UPDATE_SETTING') {
+            openConfirm(
+                '시스템 설정 자동 변경',
+                `시스템 설정을 즉시 변경하려고 합니다.<br><br>명령: <b>${cmd.desc}</b><br><br>적용할까요?`,
+                async () => {
+                    await fetchAPI(`system_settings?setting_key=eq.${cmd.key}`, 'PATCH', { setting_value: cmd.value });
+                    showToast('시스템 룰이 변경되었습니다!');
+                    if(cmd.key === 'daily_max_lecture_minutes') DAILY_MAX_LECTURE_MINUTES = cmd.value;
+                    if(cmd.key === 'study_required_weekly_minutes') REQUIRED_WEEKLY_MINUTES = cmd.value;
+                    await logAction('시스템', '설정 변경', `[룰 변경] ${cmd.desc}`, currentUser.name, currentUser.student_id, 0);
+                    appendAIMessage('bot', '안내해 드린 시스템 룰 변경이 완료되었습니다. 지금부터 모든 학우에게 적용됩니다.');
+                }
+            );
+        } else if(cmd.action === 'ADD') {
+            const sH = parseInt(cmd.start_time.split(':')[0]);
+            const eH = parseInt(cmd.end_time.split(':')[0]);
+            openConfirm(
+                'AI 시간표 자동 등록',
+                `<b>[${cmd.room_name}] ${cmd.day_of_week}요일 ${cmd.start_time}~${cmd.end_time}</b><br>이대로 자동 등록할까요?`,
+                async () => {
+                    await fetchAPI('lecture_bookings', 'POST', {
+                        room_name: cmd.room_name, day_of_week: cmd.day_of_week, start_hour: sH, end_hour: eH,
+                        start_time: cmd.start_time, end_time: cmd.end_time, purpose: cmd.purpose,
+                        user_name: cmd.category || '정규 수업', user_student_id: 'ADMIN_FIXED'
+                    });
+                    showToast('🎉 고정 등록 완료!'); loadAll(false);
+                    appendAIMessage('bot', `요청하신 일정이 시간표에 등록되었습니다.`);
+                }
+            );
+        } else if(cmd.action === 'DELETE') {
+            const target = lectureBookings.find(b => b.room_name === cmd.room_name && b.day_of_week === cmd.day_of_week && (b.purpose.includes(cmd.purpose) || cmd.purpose.includes(b.purpose)));
+            if(target) {
+                openConfirm('AI 시간표 삭제', `해당 일정을 삭제할까요?`, async () => {
+                    await fetchAPI(`lecture_bookings?id=eq.${target.id}`, 'DELETE');
+                    showToast('삭제 완료되었습니다.'); loadAll(false);
+                    appendAIMessage('bot', `요청하신 일정이 삭제되었습니다.`);
+                });
+            } else appendAIMessage('bot', `조건에 맞는 일정을 찾지 못했습니다.`);
+        }
+    }
+
+    // 💡 핵심 기능: 깃허브 원격 자율 코딩
+    async function modifyCodeViaGitHub(desc) {
+        let ghToken = localStorage.getItem('gnu_github_token');
+        if(!ghToken) {
+            ghToken = prompt("자비스 자동 코딩을 위한 깃허브 토큰(ghp_...)을 입력해 주세요:");
+            if(!ghToken) {
+                appendAIMessage('bot', '토큰이 입력되지 않아 작업을 취소했습니다.');
+                return;
+            }
+            localStorage.setItem('gnu_github_token', ghToken.trim());
+        }
+
+        appendAIMessage('bot', '로봇 팔 가동 중! 코드를 직접 수정하고 있습니다... 🛠️ (약 10~20초 소요)');
+
+        try {
+            const repo = '001226gksmf-beep/gnu-portal';
+            const path = 'public/index.html';
+            const ghUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
+            
+            // 1. 깃허브에서 원본 파일 가져오기
+            const ghRes = await fetch(ghUrl, { headers: { 'Authorization': `token ${ghToken}` } });
+            if(!ghRes.ok) {
+                if(ghRes.status === 401 || ghRes.status === 404) localStorage.removeItem('gnu_github_token');
+                throw new Error('깃허브 접근 실패. 토큰이 정확한지 확인해 주세요.');
+            }
+            const ghData = await ghRes.json();
+            const sha = ghData.sha;
+            const decodedHTML = decodeURIComponent(escape(atob(ghData.content)));
+
+            // 2. AI에게 코드 수정 지시 (수정률이 높은 gemini-1.5-pro 모델 사용)
+            const aiPrompt = `
+다음은 현재 웹사이트의 전체 HTML 코드입니다.
+사용자 요청: "${desc}"
+이 요청을 반영하여 코드를 수정해 주세요. 
+반드시 수정된 전체 HTML 코드를 \`\`\`html 과 \`\`\` 사이에 작성해 주세요. 기존 코드를 절대 생략하지 말고, 처음부터 끝까지 누락 없이 모두 출력해야 합니다.
+
+현재 코드:
+${decodedHTML}
+`;
+            const aiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: aiPrompt }] }] })
+            });
+            const aiData = await aiRes.json();
+            if(!aiData.candidates) throw new Error('AI 응답을 받지 못했습니다.');
+            const aiReply = aiData.candidates[0].content.parts[0].text;
+            
+            let newHTML = aiReply;
+            if(aiReply.includes('```html')) {
+                newHTML = aiReply.split('```html')[1].split('```')[0].trim();
+            }
+
+            // 3. 수정한 코드를 깃허브에 다시 덮어쓰기
+            const encodedHTML = btoa(unescape(encodeURIComponent(newHTML)));
+            const updateRes = await fetch(ghUrl, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${ghToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: `자비스 자동 코딩: ${desc}`,
+                    content: encodedHTML,
+                    sha: sha
+                })
+            });
+
+            if(!updateRes.ok) throw new Error('깃허브 서버에 코드를 올리지 못했습니다.');
+
+            appendAIMessage('bot', '✨ 코드 수정 및 깃허브 전송 완료! 클라우드 로봇이 서버에 새 코드를 배포하고 있습니다. 약 1분 뒤에 새로고침 해보세요!');
+
+        } catch(e) {
+            appendAIMessage('bot', `⚠️ 에러 발생: ${e.message}`);
+        }
+    }
+
+    function openMasterLogin() {
+        if(prompt("관리자 암호:") === "1234") { 
+            localStorage.setItem('is_admin_mode', 'true');
+            const m = document.getElementById('adminModal');
+            m.style.display = 'flex';
+            setTimeout(() => m.style.opacity = '1', 10);
+            
+            const todayStr = new Date(Date.now() - new Date().getTimezoneOffset()*60000).toISOString().split('T')[0];
+            document.getElementById('adminDatePicker').value = todayStr;
+            renderAdmin('users'); 
+            autoDeleteOldBookings();
+        } else {
+            showToast('거부됨');
+        }
+    }
+    
+    async function autoDeleteOldBookings() {
+        const monday = new Date();
+        const day = monday.getDay();
+        const diff = monday.getDate() - day + (day === 0 ? -6 : 1);
+        monday.setDate(diff);
+        monday.setHours(0,0,0,0);
+        const mondayISO = monday.toISOString();
+        
+        await fetchAPI(`lecture_bookings?user_student_id=neq.ADMIN_FIXED&created_at=lt.${mondayISO}`, 'DELETE', null, true);
+    }
+
+    function closeAdminModal() { 
+        const m = document.getElementById('adminModal');
+        m.style.opacity = '0';
+        setTimeout(() => m.style.display = 'none', 200);
+    }
+
+    async function autoRevokeUnderusedSeats() {
+        if(!confirm("지난주/이번 주 누적 이용시간 미달 학우의 자리를 자동 회수하고 장부에 사유를 기록할까요?")) return;
+        
+        showLoader();
+        const mondayISO = getMondayOfCurrentWeek();
+        const assignedSeats = studySeats.filter(s => s.seat_type === '지정석' && s.assigned_id && String(s.assigned_id).trim() !== '');
+        
+        let revokedCount = 0;
+        for(let seat of assignedSeats) {
+            const logs = await fetchAPI(`reservation_logs?user_student_id=eq.${seat.assigned_id}&target_type=eq.정독실&action_type=eq.반납(퇴실)&created_at=gte.${mondayISO}&select=duration_minutes`, 'GET', null, true);
+            const totalMins = logs ? logs.reduce((sum, item) => sum + (item.duration_minutes || 0), 0) : 0;
+            
+            if(totalMins < REQUIRED_WEEKLY_MINUTES) {
+                const hrs = Math.floor(totalMins / 60);
+                const mins = totalMins % 60;
+                const reason = `[자동회수] 주간 의무시간 미달 (실제이용: ${hrs}시간 ${mins}분)`;
+                
+                await fetchAPI(`study_seats?seat_number=eq.${seat.seat_number}`, 'PATCH', { 
+                    assigned_name: '', 
+                    assigned_id: '', 
+                    is_occupied: false, 
+                    expire_at: 0, 
+                    check_in_ms: 0 
+                }, true);
+                
+                await logAction('정독실', `${seat.seat_number}번`, reason, seat.assigned_name, seat.assigned_id, totalMins);
+                revokedCount++;
+            }
+        }
+        hideLoader();
+        showToast(`총 ${revokedCount}명의 미달 좌석이 회수 처리 및 기록되었습니다.`);
+        loadAll(false);
+        renderAdmin('study_assign');
+    }
+
+    async function viewUserHistory(uid, uName, uGrade) {
+        const c = document.getElementById('adminListContainer');
+        c.innerHTML = '<div style="font-size:12px;text-align:center;color:#a3a3a3;padding:20px 0;">로딩 중...</div>';
+        
+        const logs = await fetchAPI(`reservation_logs?user_student_id=eq.${uid}&order=id.desc&limit=100`, 'GET', null, false);
+        
+        let html = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:2px solid #000; padding-bottom:8px;">
+            <div style="font-size:13px; font-weight:800;">[${uGrade}] ${uName} (${uid}) 님의 기록</div>
+            <button style="padding:4px 8px; font-size:10px; background:#f4f4f5; border:1px solid #e5e5e5; cursor:pointer; border-radius:4px;" onclick="renderAdmin('users')">뒤로 가기</button>
+        </div>`;
+        
+        if(!logs || logs.length === 0) {
+            html += '<div style="font-size:12px;text-align:center;color:#a3a3a3;padding:20px 0;">이용 기록이 없습니다.</div>';
+        } else {
+            logs.forEach(l => {
+                const dt = new Date(l.created_at);
+                const dateStr = `${dt.getFullYear().toString().substr(2)}.${String(dt.getMonth()+1).padStart(2,'0')}.${String(dt.getDate()).padStart(2,'0')}`;
+                const timeStr = `${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+                const durStr = l.duration_minutes ? ` <span style="color:#4f46e5;">(${l.duration_minutes}분)</span>` : '';
+                
+                html += `<div style="display:flex; flex-direction:column; gap:4px; padding:8px 0; border-bottom:1px solid #f0f0f0;">
+                    <div style="font-size:10px; color:#a3a3a3; font-weight:600;">${dateStr} ${timeStr} | ${l.target_type} > ${l.target_name}</div>
+                    <div style="font-size:12px; font-weight:700; color:#171717;">${l.action_type}${durStr}</div>
+                </div>`;
+            });
+        }
+        c.innerHTML = html;
+    }
+
+    async function renderAdmin(mode) {
+        currentAdminMode = mode;
+        const c = document.getElementById('adminListContainer'); 
+        c.innerHTML = '<div style="font-size:12px;text-align:center;color:#a3a3a3;padding:20px 0;">로딩 중...</div>'; 
+        
+        ['study_assign', 'study_free', 'lecture_bookings', 'users', 'suggestions', 'logs'].forEach(m => {
+            const btn = document.getElementById(`adminBtn_${m}`);
+            if(btn) btn.className = (m === mode) ? 'btn-black' : 'btn-white';
+        });
+
+        const datePicker = document.getElementById('adminDatePicker');
+        const selectedDateStr = datePicker.value;
+        const selDate = new Date(selectedDateStr);
+        const daysMap = ['일', '월', '화', '수', '목', '금', '토'];
+        const selDayName = daysMap[selDate.getDay()];
+        const now = Date.now();
+        
+        c.innerHTML = '';
+        
+        if(mode === 'study_assign') {
+            studySeats.filter(s => s.seat_type === '지정석').forEach(s => {
+                const hasAssign = s.assigned_id && String(s.assigned_id).trim() !== '' && String(s.assigned_id) !== 'null';
+                c.innerHTML += `<div class="admin-list-item">
+                    <div style="font-size:12px; font-weight:800;">${s.seat_number}번: ${hasAssign?s.assigned_name:'공석'}</div>
+                    <div style="display:flex;gap:4px;"><button style="padding:6px;font-size:10px;background:#000;color:#fff;border:none;cursor:pointer;" onclick="openAssign(${s.seat_number})">수동배정</button>${hasAssign?`<button style="padding:6px;font-size:10px;cursor:pointer;" onclick="doAdminAction('study_seats', ${s.seat_number}, 'revoke', '${s.seat_number}번', '${s.assigned_name}', '${s.assigned_id}')">회수</button>`:''}</div></div>`;
+            });
+        } else if(mode === 'study_free') {
+            studySeats.filter(s => s.seat_type === '자율석' && s.is_occupied && s.expire_at>now).forEach(s => {
+                c.innerHTML += `<div class="admin-list-item"><div style="font-size:12px;font-weight:800;">${s.seat_number}번: ${s.user_name}</div><button style="padding:6px;font-size:10px;border:1px solid #000;cursor:pointer;" onclick="doAdminAction('study_seats', ${s.seat_number}, 'kick', '${s.seat_number}번', '${s.user_name}', '${s.user_student_id}', s)">강제퇴실</button></div>`;
+            });
+        } else if(mode === 'lecture_bookings') {
+            const bookings = await fetchAPI('lecture_bookings?order=start_hour.asc', 'GET', null, false);
+            if(!bookings || bookings.length === 0) {
+                c.innerHTML = '<div style="font-size:12px;text-align:center;color:#a3a3a3;padding:20px 0;">등록된 전체 일정이 없습니다.</div>';
+                return;
+            }
+            const filtered = bookings.filter(b => b.day_of_week === selDayName);
+            if(filtered.length === 0) {
+                c.innerHTML = `<div style="font-size:12px;text-align:center;color:#a3a3a3;padding:20px 0;">${selDate.getMonth()+1}월 ${selDate.getDate()}일(${selDayName}) 대관 일정이 없습니다.</div>`;
+                return;
+            }
+            filtered.forEach(b => {
+                const sT = b.start_time || `${b.start_hour}:00`;
+                const eT = b.end_time || `${b.end_hour}:00`;
+                const isFixed = (b.user_student_id === 'ADMIN_FIXED');
+                
+                c.innerHTML += `<div class="admin-list-item" style="gap:8px;">
+                    <div style="font-size:11.5px; line-height:1.4;">
+                        <b>[${b.room_name}]</b> ${b.day_of_week}요일 ${sT}~${eT}<br>
+                        ${isFixed ? `<span style="color:#2563eb;font-weight:800;">🔒 [${b.user_name}] ${b.purpose}</span>` : `<span style="color:var(--text-muted);">${b.user_name}(${b.user_student_id}) - ${b.purpose}</span>`}
+                    </div>
+                    <button style="padding:6px 8px; font-size:10px; border:1px solid #000; cursor:pointer;" onclick="deleteBookingAdmin(${b.id}, '${b.room_name}', '${b.day_of_week}', '${sT}', '${eT}', '${b.user_name}', '${b.user_student_id}')">삭제</button>
+                </div>`;
+            });
+        } else if(mode === 'users') {
+            const data = await fetchAPI('members?order=grade.asc', 'GET', null, false);
+            if(!data || data.length === 0) {
+                c.innerHTML = '<div style="font-size:12px;text-align:center;color:#a3a3a3;padding:20px 0;">등록된 학우가 없습니다.</div>';
+                return;
+            }
+            data.forEach(m => {
+                c.innerHTML += `<div class="admin-list-item" style="cursor:pointer;" onclick="viewUserHistory('${m.student_id}', '${m.name}', '${m.grade}')">
+                    <div style="font-size:12px; font-weight:800;">[${m.grade}] ${m.name}</div>
+                    <div style="font-size:10px; font-weight:700; color:#4f46e5; background:#eef2ff; padding:4px 8px; border-radius:4px;">${m.student_id} ➔</div>
+                </div>`;
+            });
+        } else if(mode === 'suggestions') {
+            const logs = await fetchAPI('reservation_logs?target_type=eq.건의사항&order=id.desc&limit=50', 'GET', null, false);
+            if(!logs || logs.length === 0) {
+                c.innerHTML = '<div style="font-size:12px;text-align:center;color:#a3a3a3;padding:20px 0;">접수된 건의사항이 없습니다.</div>';
+                return;
+            }
+            logs.forEach(l => {
+                const dt = new Date(l.created_at);
+                const timeStr = `${dt.getMonth()+1}/${dt.getDate()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+                c.innerHTML += `<div class="admin-list-item" style="flex-direction:column; align-items:flex-start; gap:4px; border-bottom:1px solid var(--border-light); padding:8px 0;">
+                    <div style="font-size:10px; color:var(--text-muted);">${timeStr} | 작성자: <b>${l.user_name}</b> (${l.user_student_id})</div>
+                    <div style="font-size:12.5px; font-weight:700; color:var(--piano-black); background:#f4f4f5; padding:8px 10px; border-radius:6px; width:100%; box-sizing:border-box; word-break:break-all;">${l.action_type}</div>
+                </div>`;
+            });
+        } else if(mode === 'logs') {
+            const url = `reservation_logs?created_at=gte.${selectedDateStr}T00:00:00&created_at=lte.${selectedDateStr}T23:59:59&order=id.desc`;
+            const logs = await fetchAPI(url, 'GET', null, false);
+            if(!logs || logs.length === 0) {
+                c.innerHTML = `<div style="font-size:12px;text-align:center;color:#a3a3a3;padding:20px 0;">${selDate.getMonth()+1}월 ${selDate.getDate()}일 기록이 없습니다.</div>`;
+                return;
+            }
+            logs.forEach(l => {
+                const dt = new Date(l.created_at);
+                const timeStr = `${dt.getMonth()+1}/${dt.getDate()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+                const durStr = l.duration_minutes ? ` <span style="color:#4f46e5;">(${l.duration_minutes}분)</span>` : '';
+                c.innerHTML += `<div class="admin-list-item" style="flex-direction:column; align-items:flex-start; gap:4px; border-bottom:1px solid var(--border-light); padding:8px 0;">
+                    <div style="font-size:10px; color:var(--text-muted);">${timeStr} | ${l.target_type} > ${l.target_name}</div>
+                    <div style="font-size:12px; font-weight:800; color:var(--piano-black);">[${l.action_type}] ${l.user_name}(${l.user_student_id})${durStr}</div>
+                </div>`;
+            });
+        }
+    }
+
+    async function deleteBookingAdmin(id, room, day, sT, eT, uName, uId) {
+        const isFixed = (uId === 'ADMIN_FIXED');
+        const desc = isFixed ? `[${room}] ${day}요일 ${sT}~${eT} [${uName}] 일정을 삭제하시겠습니까?` : `[${room}] ${day}요일 ${sT}~${eT} (${uName}) 대관 일정을 삭제하시겠습니까?`;
+        
+        if(!confirm(desc)) return;
+        await fetchAPI(`lecture_bookings?id=eq.${id}`, 'DELETE');
+        await logAction('강의실', room, `[관리자삭제] ${day}요일 ${sT}~${eT} (${uName})`, currentUser.name, currentUser.student_id, 0);
+        showToast('일정이 삭제되었습니다.');
+        loadAll(false);
+        renderAdmin('lecture_bookings');
+    }
+
+    let targetAssign = null;
+    async function openAssign(num) {
+        targetAssign = num; 
+        const m = document.getElementById('assignModal');
+        m.style.display = 'flex';
+        setTimeout(() => m.style.opacity = '1', 10);
+        
+        const sel = document.getElementById('assignStudentSelect'); sel.innerHTML = '<option>로딩중...</option>';
+        const data = await fetchAPI('members?order=grade.asc', 'GET', null, false);
+        if(data) {
+            allMembers = data; sel.innerHTML = '<option value="">선택</option>';
+            data.forEach(m => sel.innerHTML += `<option value="${m.student_id}">${m.grade} ${m.name}</option>`);
+        }
+    }
+    function closeAssignModal() {
+        const m = document.getElementById('assignModal');
+        m.style.opacity = '0';
+        setTimeout(() => m.style.display = 'none', 200);
+    }
+    
+    document.getElementById('assignActionBtn').onclick = async () => {
+        const id = document.getElementById('assignStudentSelect').value; if(!id) return;
+        const u = allMembers.find(m => m.student_id === id);
+        await fetchAPI(`study_seats?seat_number=eq.${targetAssign}`, 'PATCH', { assigned_name: u.name, assigned_id: u.student_id }, false);
+        await logAction('정독실', `${targetAssign}번`, '수동 배정', u.name, u.student_id, 0);
+        closeAssignModal(); loadAll(false); setTimeout(()=>renderAdmin('study_assign'), 300);
+    };
+
+    async function doAdminAction(table, id, type, targetName, uName, uId, sData=null) {
+        const idCol = table === 'study_seats' ? 'seat_number' : 'id';
+        if(type === 'revoke') {
+            await fetchAPI(`${table}?${idCol}=eq.${id}`, 'PATCH', { assigned_name: '', assigned_id: '', is_occupied: false, expire_at: 0, check_in_ms: 0 }, false);
+            await logAction('정독실', targetName, '[수동회수] 관리자 직권 취소', uName, uId, 0);
+        }
+        if(type === 'kick') {
+            let spentMins = 0;
+            if(sData && sData.check_in_ms) spentMins = Math.max(1, Math.round((Date.now() - sData.check_in_ms) / 60000));
+            await fetchAPI(`${table}?${idCol}=eq.${id}`, 'PATCH', { is_occupied: false, user_name: '', user_student_id: '', expire_at: 0, check_in_ms: 0, extend_count: 0 }, false);
+            await logAction('정독실', targetName, '강제 퇴실', uName, uId, spentMins);
+        }
+        showToast('처리 완료'); loadAll(false); setTimeout(() => renderAdmin(table==='study_seats'?'study_free':'lecture'), 300);
+    }
+</script>
+</body>
+</html>
